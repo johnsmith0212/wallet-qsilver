@@ -1,4 +1,4 @@
-import { faCopy, faGear, faPlus, faTimes, faTrash } from "@fortawesome/free-solid-svg-icons";
+import { faCopy, faPlus, faTimes, faTrash } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import React, { useEffect, useState } from "react";
 import Modal from "../components/common/Modal";
@@ -10,6 +10,7 @@ import axios from "axios";
 import { SERVER_URL } from "../utils/constants";
 import { useSelector } from "react-redux";
 import { RootState } from "../redux/store";
+import { toast } from "react-toastify";
 
 const Dashboard: React.FC = () => {
     const { login, logout, user } = useAuth();
@@ -21,14 +22,20 @@ const Dashboard: React.FC = () => {
     const [isDeleteAccountModalOpen, setIsDeleteAccountModalOpen] = useState<boolean>(false);
     const toggleDeleteAccountModal = () => setIsDeleteAccountModalOpen(!isDeleteAccountModalOpen);
 
-
     const { tick, balances } = useSelector((state: RootState) => state.app);
-    
+
     const [deleteAccount, setDeleteAccount] = useState<string>("");
     const [currentAddress, setCurrentAddress] = useState<string>("");
     const [allAddresses, setAllAddresses] = useState<string[]>([]);
+    const [addingStatus, setAddingStatus] = useState<boolean>(false);
+    const [deletingStatus, setDeletingStatus] = useState<boolean>(false);
+    const [toAddress, setToAddress] = useState<string>("");
+    const [amount, setAmount] = useState<string>("");
+    const [sendingStatus, setSendingStatus] = useState<boolean>(false);
 
     const handleAddAccount = () => {
+        if (addingStatus) return;
+        setAddingStatus(true);
         console.log(user?.password, user?.accountInfo.addresses.findIndex((item) => item == ""))
         axios.post(
             `${SERVER_URL}/api/add-account`,
@@ -38,33 +45,12 @@ const Dashboard: React.FC = () => {
             }
         ).then((resp) => {
             console.log(resp.data);
-            // login(resp.data)
+            login(resp.data)
         }).catch((error) => {
             console.error(error);
+        }).finally(() => {
+            setAddingStatus(false)
         })
-    }
-
-    const handleDeleteAccount = () => {
-        if (deleteAccount != "")
-            axios.post(
-                `${SERVER_URL}/api/delete-account`,
-                {
-                    password: user?.password,
-                    index: user?.accountInfo.addresses.indexOf(deleteAccount)
-                }
-            ).then((resp) => {
-                if(user?.accountInfo.addresses.indexOf(deleteAccount) == 0) {
-                    logout();
-                }
-                delete balances[deleteAccount];
-                login(resp.data);
-            }).catch(() => {
-
-            })
-    }
-
-    const handleTransfer = () => {
-        socket?.emit('send', 'MVPYRACGNJBMJGDLLAXUDXHXFOXBOBWCBZQBAXSUTGJXOBRLZVCTBDPCXPMK')
     }
 
     const handleLogout = () => {
@@ -72,9 +58,62 @@ const Dashboard: React.FC = () => {
         navigate('/login');
     }
 
+    const handleDeleteAccount = () => {
+        if (deletingStatus) return;
+        setDeletingStatus(true)
+        if (deleteAccount != "")
+            axios.post(
+                `${SERVER_URL}/api/delete-account`,
+                {
+                    password: user?.password,
+                    index: user?.accountInfo.addresses.indexOf(deleteAccount),
+                    address: deleteAccount,
+                }
+            ).then((resp) => {
+                if (user?.accountInfo.addresses.indexOf(deleteAccount) == 0) {
+                    handleLogout();
+                }
+                // delete balances[deleteAccount];
+                login(resp.data);
+            }).catch(() => {
+
+            }).finally(() => {
+                toggleDeleteAccountModal();
+                setDeletingStatus(false);
+            })
+    }
+
+    const handleTransfer = () => {
+        if (toAddress == "" || amount == "" || amount == "0") {
+            toast.error(
+                `Invalid address or amount!`
+            );
+            return;
+        }
+        setSendingStatus(true);
+        axios.post(
+            `${SERVER_URL}/api/transfer`,
+            {
+                toAddress,
+                fromIdx: allAddresses.indexOf(currentAddress),
+                amount
+            }
+        ).then((resp) => {
+            console.log(resp.data);
+        }).catch((error) => {
+            console.log(error.response);
+        }).finally(() => {
+
+        });
+    }
+
     const handleClickAccount = (address: string) => {
         setCurrentAddress(address);
         toggleAccountModal();
+    }
+
+    const handleSelectAccount = (address: string) => {
+        setCurrentAddress(address);
     }
 
     useEffect(() => {
@@ -91,7 +130,11 @@ const Dashboard: React.FC = () => {
     }, [socket])
 
     useEffect(() => {
-        if(user?.accountInfo){
+
+    }, [sendingStatus])
+
+    useEffect(() => {
+        if (user?.accountInfo) {
             setCurrentAddress(user?.accountInfo.addresses[0])
             setAllAddresses(user?.accountInfo.addresses)
         }
@@ -105,25 +148,41 @@ const Dashboard: React.FC = () => {
                     <div className="cursor-pointer">
                         <img src="images/logo.png" className="w-[50px]" />
                     </div>
-                    <div className="cursor-pointer" onClick={toggleAccountModal}>
+                    <div className="cursor-pointer" onClick={() => handleCopy(currentAddress)}>
                         <span className="p-[5px] shadow-[0_2px_3px_rgba(0,0,0,0.5)] rounded-[5px]">
                             {currentAddress}
                             {/* <FontAwesomeIcon icon={faArrowDown} /> */}
                         </span>
                     </div>
                     <div className="flex items-center gap-[10px] cursor-pointer">
-                        <FontAwesomeIcon className="text-[32px]" icon={faGear} onClick={handleLogout} />
+                        <a className="text-[18px] bg-[#1e2975] px-2 rounded-[5px]" onClick={handleLogout} >Logout</a>
+                        {/* <FontAwesomeIcon className="text-[32px]" icon={faGear} onClick={handleLogout} /> */}
                     </div>
                 </header>
                 <div className="p-[20px_60px] ">
-                    <div>
+                    <div className="flex gap-5">
                         <h3 className="text-[1.75rem]">Balance: {Object.values(balances).reduce((sum, balance) => sum + balance, 0)}</h3>
                         <h3 className="text-[1.75rem]">Tick: {tick}</h3>
                     </div>
+                    <div className="flex gap-5 w-full h-full overflow-auto overflow-y-hidden p-5 border-[1.5px] border-[#17517a] rounded-[5px] mt-2">
+                        <div className={`p-2 cursor-pointer flex items-center align-middle shadow-[2px_2px_2px_2px_rgba(0,0,0,0.3)] ${addingStatus ? "cursor-wait" : "cursor-pointer"}`} onClick={handleAddAccount}>
+                            <FontAwesomeIcon icon={faPlus} className="p-3 text-[24px]" />
+                        </div>
+                        {
+                            allAddresses.map((item, idx) => {
+                                console.log(balances[item])
+                                if (item != "")
+                                    return <div className={`p-2 cursor-pointer flex items-center flex-col ${currentAddress == item ? " shadow-[2px_2px_2px_2px_rgba(0,0,0,0.6)] bg-[#17517a] " : " shadow-[2px_2px_2px_2px_rgba(0,0,0,0.3)] "}`} key={`item${idx}`} onClick={() => handleSelectAccount(item)} onContextMenu={(e) => { e.preventDefault(); setDeleteAccount(item); toggleDeleteAccountModal() }}>
+                                        <div>{`${item.slice(0, 5)}...${item.slice(-5)}`}</div>
+                                        <span>{balances[item] | 0}</span>
+                                    </div>
+                            })
+                        }
+                    </div>
                     <div className="mt-[20px]">
                         <div className="">
-                            <input className="text-white p-[10px] mr-[5px] border-[1.5px] border-[#17517a] rounded-[5px] w-[720px] outline-none bg-transparent" />
-                            <input className="text-white p-[10px] mr-[5px] border-[1.5px] border-[#17517a] rounded-[5px] w-[120px] outline-none bg-transparent " />
+                            <input className="text-white p-[10px] mr-[5px] border-[1.5px] border-[#17517a] rounded-[5px] w-[720px] outline-none bg-transparent" placeholder="Address" onChange={(e) => setToAddress(e.target.value)} />
+                            <input className="text-white p-[10px] mr-[5px] border-[1.5px] border-[#17517a] rounded-[5px] w-[120px] outline-none bg-transparent" placeholder="Amount" onChange={(e) => setAmount(e.target.value)} type="number" />
                             <button className="outline-none p-[10px_20px] bg-[#17517a] border-none rounded-[5px] text-white text-[16px] cursor-pointer transition-bg duration-300 ease" onClick={handleTransfer}>Send</button>
                         </div>
                         <div className="mt-[40px] max-h-[1000px] overflow-auto">
@@ -147,8 +206,8 @@ const Dashboard: React.FC = () => {
                 <div className='flex justify-between p-[10px_16px] items-center border-b border-white text-[1.25rem]'>
                     <div>Addresses</div>
                     <div className="flex gap-[10px]">
-                        <FontAwesomeIcon icon={faPlus} className='cursor-pointer' onClick={handleAddAccount} />
-                        <FontAwesomeIcon icon={faTimes} onClick={toggleAccountModal} className='cursor-pointer' />
+                        <FontAwesomeIcon icon={faPlus} className={addingStatus ? `cursor-wait` : `cursor-pointer`} onClick={handleAddAccount} />
+                        <FontAwesomeIcon icon={faTimes} className={`cursor-pointer`} onClick={toggleAccountModal} />
                     </div>
                 </div>
                 <div className="p-[10px_16px] max-h-[500px] overflow-y-auto mb-[10px]">
@@ -157,7 +216,7 @@ const Dashboard: React.FC = () => {
                             if (item != "")
                                 return <div className="flex justify-between items-center gap-[20px]" key={`address-${idx}`}>
                                     <FontAwesomeIcon className="cursor-pointer" icon={faCopy} onClick={() => handleCopy(item)} />
-                                    <span className="cursor-pointer" onClick={() => {handleClickAccount(item)}}>{item}</span>
+                                    <span className="font-mono cursor-pointer" onClick={() => { handleClickAccount(item) }}>{item}</span>
                                     <FontAwesomeIcon className="cursor-pointer" icon={faTrash} onClick={() => { setDeleteAccount(item); toggleDeleteAccountModal(); }} />
                                 </div>
                         })
@@ -174,7 +233,7 @@ const Dashboard: React.FC = () => {
                 <div className="p-[10px_16px] max-h-[500px] overflow-y-auto mb-[10px]">
                     {deleteAccount}
                     <div className="flex justify-end gap-5 mt-[10px]">
-                        <a className="cursor-pointer bg-red-500 px-4 hover:bg-red-600" onClick={handleDeleteAccount}>Yes</a>
+                        <a className={(deletingStatus ? `cursor-wait` : `cursor-pointer`) + " bg-red-500 px-4 hover:bg-red-600"} onClick={handleDeleteAccount}>Yes</a>
                         <a className="cursor-pointer bg-[#5468ff] px-4 hover:bg-[#3f4cb1]" onClick={toggleDeleteAccountModal}>No</a>
                     </div>
                 </div>
