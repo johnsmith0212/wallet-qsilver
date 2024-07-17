@@ -2,7 +2,6 @@ import React, { useEffect, useState } from "react";
 import axios from "axios";
 import { SERVER_URL } from "../utils/constants";
 import { useSocket } from "../context/SocketContext";
-import { useNetwork } from "../context/NetworkContext";
 
 const ChildComponent: React.FC<{ value: string }> = ({ value }) => {
     return <div>{value}</div>;
@@ -12,7 +11,6 @@ const CliSocket: React.FC = () => {
 
     const [wasmCommand, setWasmCommand] = useState<string>("");
     const socket = useSocket();
-    const network = useNetwork();
     const [result, setResult] = useState<string>("");
     const [wasmChildren, setWasmChildren] = useState<Array<JSX.Element>>([]);
 
@@ -61,7 +59,6 @@ const CliSocket: React.FC = () => {
             `${SERVER_URL}/api/socket`,
             {
                 command: socketCommand,
-                socketUrl: network.config.wssUrl,
                 flag: 'socket',
             }
         ).then((resp) => {
