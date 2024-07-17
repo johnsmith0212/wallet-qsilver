@@ -29,13 +29,12 @@ exports.login = async (req, res) => {
     stateManager.init();
     const resultFor24words = await wasmManager.ccall({ command: `checkavail ${password}`, flag: 'login' });
     const resultFor55chars = await wasmManager.ccall({ command: `checkavail Q${password}`, flag: 'login' });
-    const passwordExistCode = -24;
-    if (resultFor24words.value.result != passwordExistCode && resultFor55chars.value.result != passwordExistCode) {
+    if (resultFor24words.value.result != -33 && resultFor55chars.value.result != -33) {
         res.status(401).send('Password does not exist.');
         return
-    } else if (resultFor24words.value.result == passwordExistCode) {
+    } else if (resultFor24words.value.result == -33) {
         realPassword = password;
-    } else if (resultFor55chars.value.result == passwordExistCode) {
+    } else if (resultFor55chars.value.result == -33) {
         realPassword = `Q${password}`;
     }
 
