@@ -11,13 +11,11 @@ import { resetState, setIsAuthenticated, setPassword } from "../redux/appSlice";
 import axios from "axios";
 import { SERVER_URL } from "../utils/constants";
 import { toast } from "react-toastify";
-import { useNetwork } from "../context/NetworkContext";
 
 const Login: React.FC = () => {
 
     const navigate = useNavigate();
     const dispatch = useDispatch();
-    const network = useNetwork();
 
     const socket = useSocket();
     const auth = useAuth();
@@ -38,8 +36,7 @@ const Login: React.FC = () => {
         axios.post(
             `${SERVER_URL}/api/login`,
             {
-                password,
-                socketUrl: network.config.wssUrl
+                password
             }
         ).then((resp) => {
             console.log(resp.data)
