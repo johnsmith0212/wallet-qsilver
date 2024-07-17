@@ -29,7 +29,8 @@ jobs:
         cd app/server
         npm install
         npx electron-packager . --overwrite --platform=win32 --arch=x64 --icon=logo.ico --prune=true --out=release-builds -f
-        mkdir app/server/release-builds/server-win32-x64/keys
+        ls -a
+        mkdir ./release-builds/server-win32-x64/keys
       
     - name: Zip the Windows build
       run: |
@@ -64,7 +65,6 @@ jobs:
         cd app/server
         npm install
         npx electron-packager . --overwrite --platform=darwin --arch=x64 --icon=logo.icns --prune=true --out=release-builds -f
-        mkdir app/server/release-builds/server-darwin-x64/keys
       
     - name: Zip the macOS build
       run: zip -r Qwallet-macOS.zip app/server/release-builds/server-darwin-x64/*
