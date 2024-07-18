@@ -12,16 +12,15 @@ import { useDispatch, useSelector } from "react-redux";
 import { RootState } from "../redux/store";
 import { toast } from "react-toastify";
 import ClipLoader from "react-spinners/ClipLoader";
-import { setBalances, setTokens } from "../redux/appSlice";
-import { TransactionItem } from "../utils/interfaces";
-import NetworkSwitcher from "../components/NetworkSwitcher";
+import { setBalances } from "../redux/appSlice";
+
+type TransactionItem = [number, string, string, string];
 
 const Dashboard: React.FC = () => {
     const { login, logout, user } = useAuth();
     const dispatch = useDispatch();
     const socket = useSocket();
     const navigate = useNavigate();
-
 
     const [isAccountModalOpen, setIsAccountModalOpen] = useState<boolean>(false);
     const toggleAccountModal = () => setIsAccountModalOpen(!isAccountModalOpen);
@@ -30,7 +29,7 @@ const Dashboard: React.FC = () => {
     const [isTransferModalOpen, setIsTransferModalOpen] = useState<boolean>(false);
     const toggleTransferModal = () => setIsTransferModalOpen(!isTransferModalOpen);
 
-    const { tick, balances, tokens } = useSelector((state: RootState) => state.app);
+    const { tick, balances } = useSelector((state: RootState) => state.app);
 
     const [screenWidth, setScreenWidth] = useState(window.innerWidth);
     const [deleteAccount, setDeleteAccount] = useState<string>("");
@@ -47,7 +46,6 @@ const Dashboard: React.FC = () => {
     const [transactionId, setTrasactionId] = useState<string>('');
     const [expectedTick, setExpectedTick] = useState<number>();
     const [histories, setHistories] = useState<TransactionItem[]>([]);
-    const [subTitle, setSubTitle] = useState<'Activity' | 'Token'>('Token');
 
     const handleAddAccount = () => {
         if (addingStatus) return;
@@ -220,15 +218,6 @@ const Dashboard: React.FC = () => {
         }).catch((_) => {
             setHistories([]);
         })
-
-        axios.post(
-            `${SERVER_URL}/api/tokens`,
-        ).then((resp) => {
-            dispatch(setTokens(resp.data.tokens));
-        }).catch((error) => {
-            console.log(error.response);
-        })
-
     }, [currentAddress])
 
     useEffect(() => {
@@ -262,7 +251,6 @@ const Dashboard: React.FC = () => {
                         </span>
                     </div>
                     <div className="flex items-center gap-[10px] cursor-pointer">
-                        <NetworkSwitcher />
                         <a className="text-[18px] bg-[#1e2975] px-2 rounded-[5px]" onClick={handleLogout} >Logout</a>
                         {/* <FontAwesomeIcon className="text-[32px]" icon={faGear} onClick={handleLogout} /> */}
                     </div>
@@ -293,64 +281,40 @@ const Dashboard: React.FC = () => {
                             <button className="outline-none my-2 p-[10px_20px] bg-[#17517a] border-none rounded-[5px] text-white text-[16px] cursor-pointer transition-bg duration-300 ease" onClick={handleTransfer}>Send</button>
                         </div>
                         <div className="mt-[40px] max-h-[500px]">
-                            <div className="flex gap-5 text-[1.75rem] mb-5">
-                                <h3 className={`py-1 px-3 ${subTitle == 'Token' ? "bg-[#17517a]" : ""} cursor-pointer`} onClick={() => setSubTitle('Token')}>Token</h3>
-                                <h3 className={`py-1 px-3 ${subTitle == 'Activity' ? "bg-[#17517a]" : ""} cursor-pointer`} onClick={() => setSubTitle('Activity')}>Activity</h3>
-                            </div>
-                            {
-                                subTitle == 'Token' &&
-                                <div className="relative overflow-x-auto shadow-[1px_2px_5px_5px_rgba(0.3,0.3,0.3,0.3)] sm:rounded-lg p-5">
-                                    {
-                                        tokens.map((item, idx) => {
-                                            return <div className="flex justify-between items-center" key={idx}>
-                                                <div className="flex gap-2 items-center justify-between min-w-[100px]">
-                                                    <span>{item}</span>
-                                                    <span>0</span>
-                                                </div>
-                                                <input className="text-white p-[10px] my-2 mr-[5px] border-[1.5px] border-[#17517a] rounded-[5px] max-w-[720px] w-full outline-none bg-transparent" placeholder="Address" />
-                                                <input className="text-white p-[10px] my-2 mr-[5px] border-[1.5px] border-[#17517a] rounded-[5px] w-[120px] outline-none bg-transparent" placeholder="Amount" type="number" />
-                                                <button className="outline-none my-2 p-[10px_20px] bg-[#17517a] border-none rounded-[5px] text-white text-[16px] cursor-pointer transition-bg duration-300 ease" >Send</button>
-                                            </div>
-                                        })
-                                    }
-                                </div>
-                            }
-                            {
-                                subTitle == 'Activity' &&
-                                <div className="relative overflow-x-auto shadow-[1px_2px_5px_5px_rgba(0.3,0.3,0.3,0.3)] sm:rounded-lg p-5">
-                                    <table className="w-full text-sm text-left rtl:text-right h-full p-5">
-                                        <thead className="text-xs uppercase ">
-                                            <tr>
-                                                <th scope="col" className="px-1 py-1 pb-3">
-                                                    Txid
-                                                </th>
-                                                <th scope="col" className="px-1 py-1 pb-3">
-                                                    Tick
-                                                </th>
-                                                <th scope="col" className="px-1 py-1 pb-3">
-                                                    Address
-                                                </th>
-                                                <th scope="col" className="px-1 py-1 pb-3">
-                                                    Amount
-                                                </th>
-                                            </tr>
-                                        </thead>
-                                        <tbody className="">
-                                            {
-                                                histories.map((item, idx) => {
-                                                    return <tr className={`${item[3].startsWith('-') ? 'text-red-400' : 'text-green-400'} odd:bg-[#022139] even:bg-[#0a304a]`} key={idx}>
-                                                        <td className="px-1 py-2 font-mono cursor-pointer hover:bg-slate-400 hover:text-black" onClick={() => handleCopy(item[1])}>{screenWidth > 1250 ? item[1] : item[1].slice(0, Math.ceil(screenWidth ** 2.1) / 59000)}{item[1].slice(0, Math.ceil(screenWidth) * 67 / 1920).length < 60 && screenWidth < 1250 && '...'}</td>
-                                                        <td className="px-1 py-2 font-mono cursor-pointer hover:bg-slate-400 hover:text-black" onClick={() => handleCopy(item[0])}>{item[0]}</td>
-                                                        <td className="px-1 py-2 font-mono cursor-pointer hover:bg-slate-400 hover:text-black" onClick={() => handleCopy(item[2])}>{screenWidth > 1250 ? item[2] : item[2].slice(0, Math.ceil(screenWidth ** 2.1) / 59000)}{item[2].slice(0, Math.ceil(screenWidth) * 67 / 1920).length < 60 && screenWidth < 1250 && '...'}</td>
-                                                        <td className="px-1 py-2 font-mono cursor-pointer hover:bg-slate-400 hover:text-black" onClick={() => handleCopy(item[3])}>{item[3]}</td>
-                                                    </tr>
-                                                }
-                                                )
+                            <h3 className="text-[1.75rem] mb-5">Activity</h3>
+                            <div className="relative overflow-x-auto shadow-[1px_2px_5px_5px_rgba(0.3,0.3,0.3,0.3)] sm:rounded-lg p-5">
+                                <table className="w-full text-sm text-left rtl:text-right h-full p-5">
+                                    <thead className="text-xs uppercase ">
+                                        <tr>
+                                            <th scope="col" className="px-1 py-1 pb-3">
+                                                Txid
+                                            </th>
+                                            <th scope="col" className="px-1 py-1 pb-3">
+                                                Tick
+                                            </th>
+                                            <th scope="col" className="px-1 py-1 pb-3">
+                                                Address
+                                            </th>
+                                            <th scope="col" className="px-1 py-1 pb-3">
+                                                Amount
+                                            </th>
+                                        </tr>
+                                    </thead>
+                                    <tbody className="">
+                                        {
+                                            histories.map((item, idx) => {
+                                                return <tr className={`${item[3].startsWith('-') ? 'text-red-400' : 'text-green-400'} odd:bg-[#022139] even:bg-[#0a304a]`} key={idx}>
+                                                    <td className="px-1 py-2 font-mono cursor-pointer hover:bg-slate-400 hover:text-black" onClick={() => handleCopy(item[1])}>{screenWidth > 1250 ? item[1] : item[1].slice(0, Math.ceil(screenWidth ** 2.1) / 59000)}{item[1].slice(0, Math.ceil(screenWidth) * 67 / 1920).length < 60 && screenWidth < 1250 && '...'}</td>
+                                                    <td className="px-1 py-2 font-mono cursor-pointer hover:bg-slate-400 hover:text-black" onClick={() => handleCopy(item[0])}>{item[0]}</td>
+                                                    <td className="px-1 py-2 font-mono cursor-pointer hover:bg-slate-400 hover:text-black" onClick={() => handleCopy(item[2])}>{screenWidth > 1250 ? item[2] : item[2].slice(0, Math.ceil(screenWidth ** 2.1) / 59000)}{item[2].slice(0, Math.ceil(screenWidth) * 67 / 1920).length < 60 && screenWidth < 1250 && '...'}</td>
+                                                    <td className="px-1 py-2 font-mono cursor-pointer hover:bg-slate-400 hover:text-black" onClick={() => handleCopy(item[3])}>{item[3]}</td>
+                                                </tr>
                                             }
-                                        </tbody>
-                                    </table>
-                                </div>
-                            }
+                                            )
+                                        }
+                                    </tbody>
+                                </table>
+                            </div>
                         </div>
                     </div>
                 </div>
