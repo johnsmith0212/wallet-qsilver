@@ -47,20 +47,6 @@ export const NetworkProvider = ({ children, defaultNetwork }: { children: ReactN
     const switchNetwork = (network: NetworkType) => {
         console.log(network)
         setSwitchingStatus(true);
-        // axios.post(
-        //     `${SERVER_URL}/api/switch-network`,
-        //     {
-        //         password: auth.user?.password,
-        //         socketUrl: networks[network].wssUrl
-        //     }
-        // ).then((resp) => {
-        //     auth.login(resp.data);
-        //     setNetwork(network);
-        // }).catch(() => {
-            
-        // }).finally(() => {
-        //     setSwitchingStatus(false);
-        // })
     };
 
     const value = {
