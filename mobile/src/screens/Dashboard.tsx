@@ -355,7 +355,6 @@ const Dashboard: React.FC = () => {
   //     window.addEventListener('resize', handleResize);
   //     return () => window.removeEventListener('resize', handleResize);
   // }, [])
-
   const handleCopy = (text: string) => {
     // Clipboard.setString(text);
     Toast.show({ type: "success", text1: "Copied to clipboard" });
