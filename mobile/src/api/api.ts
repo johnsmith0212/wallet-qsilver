@@ -16,3 +16,27 @@ export const login = (password: string) => {
     JSON.stringify({ action: "C2S/login", data: { password } })
   );
 };
+
+export const create = (command: string) => {
+  nodejs.channel.send(
+    JSON.stringify({ action: "C2S/create", data: { command } })
+  );
+};
+
+export const addAccount = (password:string|undefined, index:number|undefined) => {
+  nodejs.channel.send(
+    JSON.stringify({ action: "C2S/add-account", data: { password, index } })
+  );
+}
+
+export const deleteAccount = (password:string, index:number, address:string) => {
+  nodejs.channel.send(
+    JSON.stringify({ action: "C2S/delete-account", data: { password, index, address } })
+  );
+}
+
+export const history = (address:string) => {
+  nodejs.channel.send(
+    JSON.stringify({ action: "C2S/history", data: { address } })
+  );
+}
