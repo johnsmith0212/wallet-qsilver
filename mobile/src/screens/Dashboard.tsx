@@ -30,10 +30,17 @@ import {
   setTokens,
 } from "../redux/appSlice";
 import NetworkSwitcher from "../components/NetworkSwitcher";
-import { addAccount, history, token } from "../api/api";
+import {
+  addAccount,
+  basicInfo,
+  deleteAccount as deleteAccountF,
+  getHistory,
+  getToken,
+  transfer,
+} from "../api/api";
 import eventEmitter from "../api/eventEmitter";
 import { useNavigation } from "@react-navigation/native";
-import { Button, FlatList, VStack } from "native-base";
+import { Button, FlatList, Flex, IconButton, VStack } from "native-base";
 
 type TransactionItem = [number, string, string, string];
 type RichList = {
@@ -88,7 +95,7 @@ const AddressModal: React.FC<AddressModalProps> = ({
           </Pressable>
         </View>
       </View>
-      <ScrollView style={tw`max-h-[500px] mt-4`}>
+      <ScrollView style={tw` mt-4`}>
         {allAddresses.map(
           (item, idx) =>
             item !== "" && (
@@ -124,7 +131,7 @@ const AddressModal: React.FC<AddressModalProps> = ({
 const Dashboard: React.FC = () => {
   const { login, logout, user } = useAuth();
   const dispatch = useDispatch();
-  const navigate = useNavigation();
+  const navigation = useNavigation();
 
   const [isAccountModalOpen, setIsAccountModalOpen] = useState<boolean>(false);
   const toggleAccountModal = () => setIsAccountModalOpen(!isAccountModalOpen);
@@ -174,9 +181,10 @@ const Dashboard: React.FC = () => {
   };
 
   useEffect(() => {
+    basicInfo();
     eventEmitter.on("S2C/add-account", (res) => {
       if (res.data) {
-        console.log(res);
+        // console.log(res);
         login(res.data);
       } else {
         Toast.show({ type: "error", text1: res.data.value.display });
@@ -185,98 +193,99 @@ const Dashboard: React.FC = () => {
     });
     eventEmitter.on("S2C/history", (res) => {
       if (res.data) {
-        console.log(res);
-        setHistories(res.data.changes[1].txids)
+        console.log("History: ", res);
+        setHistories(res.data.changes[1].txids);
       } else {
         Toast.show({ type: "error", text1: res.data.value.display });
         setHistories([]);
       }
     });
-    eventEmitter.on("S2C/token", (res) => {
-      if (res.data) {
-        console.log(res);
+    eventEmitter.on("S2C/tokens", (res) => {
+      if (res.data.tokens) {
         dispatch(setTokens(res.data.tokens));
+      } else {
+        Toast.show({ type: "error", text1: "Error ocurred!" });
+      }
+    });
+    eventEmitter.on("S2C/basic-info", (res) => {
+      if (res.data) {
+        // console.log("Basic Info: "res);
+        res.data.balances.map((item: [number, string]) => {
+          dispatch(setBalances({ index: item[0], balance: item[1] }));
+        });
+        dispatch(setTokens(res.data.tokens));
+        dispatch(setRichlist(res.data.richlist));
+        dispatch(setMarketcap(res.data.marketcap));
       } else {
         Toast.show({ type: "error", text1: res.data.value.display });
       }
     });
+    eventEmitter.on("S2C/transfer", (res) => {
+      if (res.data) {
+        console.log("Transfer: ", res.data);
+        if (res.data.value.result == "0") {
+          setSendingStatus("pending");
+        } else if (res.data.value.result == "1") {
+          setSendingResult(res.data.value.display);
+          setSendingStatus("closed");
+        } else {
+          setSendingStatus("rejected");
+        }
+      } else {
+        Toast.show({ type: "error", text1: res.data.value.display });
+        setSendingStatus("rejected");
+      }
+    });
+    eventEmitter.on("S2C/delete-account", (res) => {
+      if (res.data) {
+        if (user?.accountInfo.addresses.indexOf(deleteAccount) == 0) {
+          handleLogout();
+        }
+        // delete balances[deleteAccount];
+        toggleDeleteAccountModal();
+      } else {
+        Toast.show({ type: "error", text1: res });
+      }
+      setDeletingStatus(false);
+    });
   }, []);
+
+  useEffect(() => {
+    if (currentAddress != "") getHistory(currentAddress);
+    getToken();
+  }, [currentAddress]);
 
   const handleLogout = () => {
     logout();
-    navigate("/login");
+    navigation.navigate("Login");
   };
 
-  // const handleDeleteAccount = () => {
-  //     if (deletingStatus) return;
-  //     setDeletingStatus(true)
-  //     if (deleteAccount != "")
-  //         axios.post(
-  //             `${SERVER_URL}/api/delete-account`,
-  //             {
-  //                 password: user?.password,
-  //                 index: user?.accountInfo.addresses.indexOf(deleteAccount),
-  //                 address: deleteAccount,
-  //             }
-  //         ).then((resp) => {
-  //             if (user?.accountInfo.addresses.indexOf(deleteAccount) == 0) {
-  //                 handleLogout();
-  //             }
-  //             // delete balances[deleteAccount];
-  //             login(resp.data);
-  //         }).catch(() => {
+  const handleDeleteAccount = () => {
+    if (deletingStatus) return;
+    setDeletingStatus(true);
+    if (deleteAccount != "")
+      deleteAccountF(
+        user?.password,
+        user?.accountInfo.addresses.indexOf(deleteAccount),
+        deleteAccount
+      );
+  };
 
-  //         }).finally(() => {
-  //             toggleDeleteAccountModal();
-  //             setDeletingStatus(false);
-  //         })
-  // }
-
-  // const handleTransfer = () => {
-  //     if (toAddress == "" || amount == "" || amount == "0") {
-  //         toast.error(
-  //             `Invalid address or amount!`
-  //         );
-  //         return;
-  //     }
-  //     setSendingStatus('open');
-  //     const expectedTick = parseInt(tick) + 5;
-  //     setExpectedTick(expectedTick);
-  //     axios.post(
-  //         `${SERVER_URL}/api/transfer`,
-  //         {
-  //             toAddress,
-  //             fromIdx: allAddresses.indexOf(currentAddress),
-  //             amount,
-  //             tick: expectedTick,
-  //         }
-  //     ).then((resp) => {
-  //         const _statusInterval = setInterval(() => {
-  //             axios.post(
-  //                 `${SERVER_URL}/api/transfer-status`
-  //             ).then((resp) => {
-  //                 console.log(resp.data);
-  //                 if (resp.data.value.result == '0') {
-  //                     setSendingStatus('pending');
-  //                 } else if (resp.data.value.result == '1') {
-  //                     setSendingResult(resp.data.value.display);
-  //                     setSendingStatus('closed');
-  //                 } else {
-  //                     setSendingStatus('rejected');
-  //                 }
-  //             }).catch((error) => {
-  //                 console.log(error.response);
-  //                 setSendingStatus('rejected');
-  //             })
-  //         }, 2000)
-  //         setStatusInterval(_statusInterval);
-  //         console.log(resp.data);
-  //         // setSendingStatus('closed');
-  //     }).catch((_) => {
-  //         setSendingStatus('rejected');
-  //     }).finally(() => {
-  //     });
-  // }
+  const handleTransfer = () => {
+    if (toAddress == "" || amount == "" || amount == "0") {
+      Toast.show({ type: "error", text1: "Invalid address or amount!" });
+      return;
+    }
+    setSendingStatus("open");
+    const expectedTick = parseInt(tick) + 5;
+    setExpectedTick(expectedTick);
+    transfer(
+      toAddress,
+      allAddresses.indexOf(currentAddress),
+      amount,
+      expectedTick
+    );
+  };
 
   const handleClickAccount = (address: string) => {
     setCurrentAddress(address);
@@ -328,60 +337,39 @@ const Dashboard: React.FC = () => {
     }
   }, [screenWidth, currentAddress]);
 
-  // useEffect(() => {
-  //     axios.post(
-  //         `${SERVER_URL}/api/basic-info`
-  //     ).then((resp) => {
-  //         resp.data.balances.map((item: [number, string]) => {
-  //             dispatch(setBalances({ index: item[0], balance: item[1] }));
-  //         })
-  //         dispatch(setTokens(resp.data.tokens));
-  //         dispatch(setRichlist(resp.data.richlist));
-  //         dispatch(setMarketcap(resp.data.marketcap));
-  //         console.log(resp.data, 'basicinfo');
-  //     })
-
-  //     const handleResize = () => {
-  //         setScreenWidth(window.innerWidth);
-  //     };
-  //     window.addEventListener('resize', handleResize);
-  //     return () => window.removeEventListener('resize', handleResize);
-  // }, [])
-
   const handleCopy = (text: string) => {
     // Clipboard.setString(text);
     Toast.show({ type: "success", text1: "Copied to clipboard" });
   };
 
   return (
-    <ScrollView style={tw`h-full`}>
+    <ScrollView style={tw`h-full`} nestedScrollEnabled>
       <VStack style={tw`p-4 w-full h-full rounded-xl`}>
-        <View
-          style={tw`flex flex-col justify-between items-center border-b border-white`}
-        >
-          <View style={tw`flex flex-row items-center`}>
-            <TouchableOpacity onPress={() => navigate.goBack()}>
+        <View style={tw`border-b py-2`}>
+          <View style={tw`px-2 flex flex-row items-center`}>
+            <TouchableOpacity onPress={() => navigation.goBack()}>
               <Image
                 source={require("../../assets/icon.png")}
-                style={tw`w-12 h-12`}
+                style={tw`w-20 h-20`}
               />
             </TouchableOpacity>
-            <TouchableOpacity onPress={() => handleCopy(currentAddress)}>
+            <TouchableOpacity
+              onPress={() => handleCopy(currentAddress)}
+              style={tw`flex-1`}
+            >
               <Text
-                style={tw`p-1 flex-1 text-base bg-gray-800 rounded-md text-white`}
+                style={tw`p-2 flex-1 text-base bg-gray-800 rounded-md text-white`}
               >
                 {displayAddress}
               </Text>
             </TouchableOpacity>
           </View>
-
-          <View style={tw`flex flex-row items-center`}>
+          <View style={tw`mt-4 flex flex-row items-center justify-between`}>
             <NetworkSwitcher />
-            <TouchableOpacity
-              style={tw`bg-blue-800 px-2 py-1 rounded-md`}
-              onPress={() => navigate.navigate("Logout")}
-            >
-              <Text style={tw`text-lg text-white`}>Logout</Text>
+            <TouchableOpacity onPress={handleLogout}>
+              <Text style={tw`bg-blue-800 p-2 rounded-md text-xl text-white`}>
+                Logout
+              </Text>
             </TouchableOpacity>
           </View>
         </View>
@@ -404,152 +392,150 @@ const Dashboard: React.FC = () => {
           <Text style={tw`text-2xl`}>Tick: {tick}</Text>
         </View>
 
-        <ScrollView
-          style={tw`flex-row gap-5 w-full h-full overflow-auto overflow-y-hidden`}
-        >
+        <View style={tw`flex flex-row flex-wrap`}>
           <TouchableOpacity
-            style={tw`p-2 ${
-              addingStatus ? "cursor-wait" : ""
-            } flex-row items-center shadow-[2_2_2_2_rgba(0,0,0,0.3)]`}
+            style={tw`p-2 ${addingStatus ? "" : ""} flex-row items-center`}
             onPress={handleAddAccount}
           >
-            <FontAwesomeIcon icon={faPlus} style={tw`p-3 text-6`} />
+            <FontAwesomeIcon icon={faPlus} style={tw`p-3 text-base`} />
           </TouchableOpacity>
-          {allAddresses.map((item, idx) => {
-            if (item !== "")
-              return (
-                <TouchableOpacity
-                  key={`item${idx}`}
-                  style={tw`p-2 ${
-                    currentAddress === item
-                      ? "shadow-[2_2_2_2_rgba(0,0,0,0.6)] bg-[#17517a]"
-                      : "shadow-[2_2_2_2_rgba(0,0,0,0.3)]"
-                  } flex-col items-center`}
-                  onPress={() => handleSelectAccount(item)}
-                >
-                  <Text>{`${item.slice(0, 5)}...${item.slice(-5)}`}</Text>
-                  <Text>{+balances[idx] | 0}</Text>
+          <ScrollView horizontal={true} style={tw`p-2 flex flex-row`}>
+            {allAddresses.map((item, idx) => {
+              if (item !== "")
+                return (
                   <View
-                    style={tw`flex-row justify-between w-full gap-1 text-xs`}
+                    key={`item${idx}`}
+                    style={tw`p-2 ${
+                      currentAddress === item ? "" : ""
+                    } flex-col items-center bg-blue-800 w-32 mx-2`}
+                    // onPress={() => handleSelectAccount(item)}
                   >
-                    <Text style={tw`bg-green-600 px-1`}>
-                      {richlist["QU"]?.find((jtem) => jtem[1] === item)?.[0] ??
-                        "no rank"}
-                    </Text>
-                    <Text>
-                      {balances[idx] &&
-                        `$${
-                          Math.round(
-                            parseFloat(balances[idx]) *
-                              parseFloat(marketcap.price) *
-                              100
-                          ) / 100
-                        }`}
-                    </Text>
+                    <Text style={tw`text-white`}>{`${item.slice(
+                      0,
+                      5
+                    )}...${item.slice(-5)}`}</Text>
+                    <Text style={tw`text-white`}>{+balances[idx] | 0}</Text>
+                    <View style={tw`flex-row justify-between w-full text-xs`}>
+                      <Text style={tw`bg-green-600 px-1 text-white`}>
+                        {richlist["QU"]?.find(
+                          (jtem) => jtem[1] === item
+                        )?.[0] ?? "no rank"}
+                      </Text>
+                      <Text style={tw`text-white`}>
+                        {balances[idx] &&
+                          `$${
+                            Math.round(
+                              parseFloat(balances[idx]) *
+                                parseFloat(marketcap.price) *
+                                100
+                            ) / 100
+                          }`}
+                      </Text>
+                    </View>
                   </View>
-                </TouchableOpacity>
-              );
-          })}
-        </ScrollView>
+                );
+            })}
+          </ScrollView>
+        </View>
         <View style={tw`mt-5 flex-wrap flex-row`}>
           <TextInput
             placeholder="Address"
             onChangeText={(text) => console.log("Address Set:", text)}
-            style={tw`text-white p-2 my-2 mr-1 rounded-lg max-w-[720px] w-full bg-transparent`}
+            style={tw`text-white p-2 my-2 mr-1 border rounded-lg w-full bg-transparent`}
           />
           <TextInput
             placeholder="Amount"
             onChangeText={(text) => console.log("Amount Set:", text)}
-            style={tw`text-white p-2 my-2 mr-1 rounded-lg w-30 bg-transparent`}
+            style={tw`text-white p-2 my-2 mr-1 border rounded-lg w-32 bg-transparent`}
             keyboardType="numeric"
           />
           <Button
-            onPress={() => console.log("Send Transaction")}
+            onPress={handleTransfer}
             style={tw`my-2 py-2 px-5 bg-blue-800  rounded-lg text-white text-lg `}
           >
             Send
           </Button>
         </View>
-        <View style={tw`mt-10 max-h-[500px]`}>
-          <View style={tw`flex-row gap-5 mb-5`}>
+        <View style={tw`mt-5 pt-3 border-t`}>
+          <View style={tw`flex-row  mb-2`}>
             <Text
               onPress={() => setSubTitle("Token")}
               style={tw`${
-                subTitle === "Token" ? "bg-blue-800" : ""
-              } py-1 px-3 `}
+                subTitle === "Token" ? "bg-blue-800 text-white" : ""
+              } py-1 px-3 text-xl`}
             >
               Token
             </Text>
             <Text
               onPress={() => setSubTitle("Activity")}
               style={tw`${
-                subTitle === "Activity" ? "bg-blue-800" : ""
-              } py-1 px-3 `}
+                subTitle === "Activity" ? "bg-blue-800 text-white" : ""
+              } py-1 px-3 text-xl`}
             >
               Activity
             </Text>
           </View>
           {subTitle === "Token" && (
-            <ScrollView
-              style={tw`relative overflow-auto shadow-lg rounded-lg p-5`}
-            >
-              {tokens.map((item, idx) => (
-                <View
-                  key={idx}
-                  style={tw`flex-row justify-between items-center p-2`}
+            <View style={tw`relative shadow-md rounded-lg p-4`}>
+              <ScrollView horizontal={true} style={tw`flex flex-row`}>
+                {tokens.map((item, idx) => (
+                  <View key={idx} style={tw`p-2`}>
+                    <Text style={tw`text-xl`}>{item}</Text>
+                  </View>
+                ))}
+              </ScrollView>
+              <View style={tw`mt-2 flex-wrap flex-row`}>
+                <TextInput
+                  placeholder="Address"
+                  onChangeText={(text) => console.log("Address Set:", text)}
+                  style={tw`text-white p-2 my-2 mr-1 border rounded-lg w-full bg-transparent`}
+                />
+                <TextInput
+                  placeholder="Amount"
+                  onChangeText={(text) => console.log("Amount Set:", text)}
+                  style={tw`text-white p-2 my-2 mr-1 border rounded-lg w-32 bg-transparent`}
+                  keyboardType="numeric"
+                />
+                <Button
+                  onPress={handleTransfer}
+                  style={tw`my-2 py-2 px-5 bg-blue-800  rounded-lg text-white text-lg `}
                 >
-                  <Text>{item}</Text>
-                  <TextInput
-                    placeholder="Address"
-                    style={tw`text-white p-2 my-2 mr-1 border border-blue-800 rounded-lg max-w-[720px] w-full bg-transparent`}
-                  />
-                  <TextInput
-                    placeholder="Amount"
-                    style={tw`text-white p-2 my-2 mr-1 border border-blue-800 rounded-lg w-30 bg-transparent`}
-                    keyboardType="numeric"
-                  />
-                  <Button
-                    onPress={() => console.log("Send Token")}
-                    style={tw`py-2 px-5 bg-blue-800 border-none rounded-lg text-white text-lg `}
-                  >
-                    Send
-                  </Button>
-                </View>
-              ))}
-            </ScrollView>
-          )}
-          {subTitle === "Activity" && (
-            <ScrollView
-              style={tw`relative overflow-auto shadow-lg rounded-lg p-5`}
-            >
-              {/* <FlatList
-          data={histories}
-          renderItem={({ item }) => (
-            <View style={tw`flex-row justify-between p-2 ${item.amount.startsWith('-') ? 'text-red-500' : 'text-green-500'}`}>
-              <Text onPress={() => console.log("Copy Txid:", item.txid)}>{item.txid}</Text>
-              <Text onPress={() => console.log("Copy Tick:", item.tick)}>{item.tick}</Text>
-              <Text onPress={() => console.log("Copy Address:", item.address)}>{item.address}</Text>
-              <Text onPress={() => console.log("Copy Amount:", item.amount)}>{item.amount}</Text>
+                  Send
+                </Button>
+              </View>
             </View>
           )}
-          keyExtractor={(item, index) => index.toString()}
-        /> */}
-            </ScrollView>
+          {subTitle === "Activity" && (
+            <View style={tw`relative  shadow-md rounded-lg p-5`}>
+              <FlatList
+                nestedScrollEnabled
+                data={histories}
+                renderItem={({ item }) => (
+                  <View
+                    style={tw`flex-row justify-between p-2 ${
+                      item[3].startsWith("-")
+                        ? "text-red-500"
+                        : "text-green-500"
+                    }`}
+                  >
+                    <Text onPress={() => console.log("Copy Txid:", item)}>
+                      {item[1]}
+                    </Text>
+                    <Text onPress={() => console.log("Copy Tick:", item)}>
+                      {item[0]}
+                    </Text>
+                    <Text onPress={() => console.log("Copy Address:", item)}>
+                      {item[2]}
+                    </Text>
+                    <Text onPress={() => console.log("Copy Amount:", item)}>
+                      {item[3]}
+                    </Text>
+                  </View>
+                )}
+                keyExtractor={(item, index) => index.toString()}
+              />
+            </View>
           )}
-        </View>
-        <View style={tw`mt-5 flex-wrap flex-row`}>
-          <TextInput
-            style={tw`text-white p-2 my-2 mr-1 border border-[#17517a] rounded-lg max-w-[720] w-full bg-transparent`}
-            placeholder="Address"
-            onChangeText={setToAddress}
-          />
-          <TextInput
-            style={tw`text-white p-2 my-2 mr-1 border border-[#17517a] rounded-lg w-[120] bg-transparent`}
-            placeholder="Amount"
-            onChangeText={setAmount}
-            keyboardType="numeric"
-          />
-          <Button onPress={() => {}}>Send</Button>
         </View>
       </VStack>
     </ScrollView>
