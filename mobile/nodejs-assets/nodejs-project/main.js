@@ -1,18 +1,5 @@
 var rn_bridge = require("rn-bridge");
-const {
-  login,
-  create,
-  addAccout,
-  history,
-  fetchUser,
-  deleteAccount,
-  restoreAccount,
-  transfer,
-  transferStatus,
-  switchNetwork,
-  tokens,
-  basicInfo,
-} = require("./controller");
+const { login, create } = require("./controller");
 const wasmManager = require("./managers/wasmManager");
 const stateManager = require("./managers/stateManager");
 const path = require("path");
@@ -21,20 +8,18 @@ const fs = require("fs").promises;
 const createDirectoryIfNotExists = async (directoryPath) => {
   try {
     await fs.mkdir(directoryPath, { recursive: true });
-    console.log(directoryPath);
+    console.log(directoryPath)
   } catch (error) {
     console.log(`Error creating directory ${directoryPath}:${error}`);
   }
 };
 
 const init = async () => {
-  const keyDirectoryPath = path.join(
-    "/sdcard/Android/data/com.anonymous.qwallet/files",
-    "keys"
-  );
+  const keyDirectoryPath = path.join("/sdcard/Android/data/com.anonymous.qwallet/files", "keys");
   await createDirectoryIfNotExists(keyDirectoryPath);
-  wasmManager.init("/sdcard/Android/data/com.anonymous.qwallet/files");
+  wasmManager.init();
   stateManager.init();
+  // await wasmManager.ccall({command:`keysdir ${__dirname}`, flag: "keysdir"})
 };
 
 init();
@@ -42,127 +27,38 @@ init();
 rn_bridge.channel.on("message", async (msg) => {
   try {
     const message = JSON.parse(msg);
-    switch (message.action) {
-      case "C2S/login": {
-        console.log(message.data);
-        const success = await login({ password: message.data?.password });
-        console.log(success);
-        if (typeof success != "string") {
-          rn_bridge.channel.send(
-            JSON.stringify({
-              action: "S2C/login",
-              success: true,
-              data: success,
-            })
-          );
-        } else {
-          rn_bridge.channel.send(
-            JSON.stringify({
-              action: "S2C/login",
-              success: false,
-              error: "Invalid password",
-            })
-          );
-        }
-        break;
-      }
-      case "C2S/create": {
-        console.log(message.data?.command);
-        const result = await create({ command: message.data?.command });
-        console.log(result);
-        rn_bridge.channel.send(
-          JSON.stringify({
-            action: "S2C/create",
-            data: result,
-          })
-        );
-        break;
-      }
 
-      case "C2S/history": {
-        history(message.data.address);
-        break;
-      }
-      case "C2S/fetch-user": {
-        fetchUser();
-        break;
-      }
-      case "C2S/delete-account": {
-        deleteAccount(
-          message.data.password,
-          message.data.index,
-          message.data.address
-        );
-        break;
-      }
-      case "C2S/restore": {
-        restoreAccount(
-          message.data.password,
-          message.data.seeds,
-          message.data.seedType
-        );
-        break;
-      }
-      case "C2S/transfer": {
-        transfer(
-          message.data.toAddress,
-          message.data.fromIdx,
-          message.data.amount
-        );
-        break;
-      }
-      case "C2S/switch-network": {
-        switchNetwork();
-        break;
-      }
-      case "C2S/tokens": {
-        tokens()
-        break;
-      }
-      case "C2S/basic-info": {
-        basicInfo()
-        break;
-      }
-      // Socket
-      case "C2S/add-account": {
-        console.log(message.data);
-        const result = await addAccout({
-          password: message.data?.password,
-          index: message.data?.index,
-        });
-        console.log(result);
-        break;
-      }
-      case "C2S/passwordAvail": {
-        const resultFor24words = await wasmManager.ccall(message.data);
-        const resultFor55chars = await wasmManager.ccall({
-          ...message.data,
-          command: message.data.command.replace("checkavail ", "checkavail Q"),
-        });
+    if (message.action === "C2S/login") {
+      console.log(message.data)
+      const success = await login({ password: message.data?.password });
+      console.log(success)
+      if (typeof success != "string") {
         rn_bridge.channel.send(
           JSON.stringify({
-            action: "S2C/passwordAvail",
-            data:
-              resultFor24words.value.result == 0 &&
-              resultFor55chars.value.result == 0,
+            action: "S2C/login",
+            success: true,
+            data: success,
+          })
+        );
+      } else {
+        rn_bridge.channel.send(
+          JSON.stringify({
+            action: "S2C/login",
+            success: false,
+            error: "Invalid password",
           })
         );
       }
-      case "C2S/send": {
-        const liveSocket = socketManager.getLiveSocket();
-        console.log(`Socket sent: ${message.data}`);
-        liveSocket.send(message.data);
-      }
-      case "C2S/broadcast": {
-        rn_bridge.channel.send(
-          JSON.stringify({
-            action: "S2C/broadcast",
-            data: message.data,
-          })
-        );
-      }
-      default:
-        break;
+    } else if (message.action === "C2S/create") {
+      console.log(message.data?.command);
+      const result = await create({ command: message.data?.command });
+      console.log(result);
+      rn_bridge.channel.send(
+        JSON.stringify({
+          action: "S2C/create",
+          data: result,
+        })
+      );
     }
   } catch (err) {
     rn_bridge.channel.send(

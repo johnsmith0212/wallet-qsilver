@@ -1,12 +1,11 @@
 import React, { useState, useEffect } from "react";
-import { useSelector } from "react-redux";
+// import { useSelector } from "react-redux";
 import { useNavigation } from "@react-navigation/native";
-import { VStack, HStack, Input, Button, Text, Image, Box, ScrollView } from "native-base";
-import { RootState } from "../redux/store";
-import tw from "tailwind-react-native-classnames";
+import { VStack, HStack, Input, Button, Text, Image, Box } from "native-base";
+// import { RootState } from "../redux/store";
 
 const Confirm: React.FC = () => {
-  const { seeds, seedType } = useSelector((state: RootState) => state.app);
+  // const { seeds, seedType } = useSelector((state: RootState) => state.app);
 
   const [confirmSeeds, setConfirmSeeds] = useState<string | string[] | null>(
     null
@@ -15,27 +14,27 @@ const Confirm: React.FC = () => {
 
   const navigation = useNavigation();
 
-  useEffect(() => {
-    if (seedType === "24words") {
-      setConfirmSeeds(Array(24).fill(""));
-    } else if (seedType === "55chars") {
-      setConfirmSeeds("");
-    }
-  }, [seedType]);
+  // useEffect(() => {
+  //   if (seedType === "24words") {
+  //     setConfirmSeeds(Array(24).fill(""));
+  //   } else if (seedType === "55chars") {
+  //     setConfirmSeeds("");
+  //   }
+  // }, [seedType]);
 
-  useEffect(() => {
-    const checkMatch = () => {
-      if (Array.isArray(seeds) && Array.isArray(confirmSeeds)) {
-        return (
-          seeds.length === confirmSeeds.length &&
-          seeds.every((value, index) => value === confirmSeeds[index])
-        );
-      } else {
-        return seeds === confirmSeeds;
-      }
-    };
-    setMatchStatus(!checkMatch());
-  }, [confirmSeeds, seeds]);
+  // useEffect(() => {
+  //   const checkMatch = () => {
+  //     if (Array.isArray(seeds) && Array.isArray(confirmSeeds)) {
+  //       return (
+  //         seeds.length === confirmSeeds.length &&
+  //         seeds.every((value, index) => value === confirmSeeds[index])
+  //       );
+  //     } else {
+  //       return seeds === confirmSeeds;
+  //     }
+  //   };
+  //   setMatchStatus(!checkMatch());
+  // }, [confirmSeeds, seeds]);
 
   const handleConfirmSeeds = (value: string, idx?: number) => {
     if (
@@ -52,19 +51,14 @@ const Confirm: React.FC = () => {
   };
 
   return (
-    <ScrollView contentContainerStyle={{ padding: 4 }}>
-      <VStack
-        space={5}
-        w="90%"
-        maxW="300px"
-        style={tw`items-center mx-auto pt-16`}
-      >
+    <Box p="5" safeArea>
+      <VStack space={5} alignItems="center">
         <Image source={{ uri: "images/logo.png" }} alt="Logo" size="100px" />
         <Text fontSize="xl" bold>
           Confirm Seeds
         </Text>
         <Text>Please enter the backup seeds you have saved.</Text>
-        {typeof seeds === "string" ? (
+        {/* {typeof seeds === "string" ? (
           <Input
             variant="underlined"
             placeholder="Input seeds you've just created."
@@ -79,7 +73,7 @@ const Confirm: React.FC = () => {
               onChangeText={(value) => handleConfirmSeeds(value, idx)}
             />
           ))
-        )}
+        )} */}
         <Button.Group space={2} mt="4" w="80%">
           <Button onPress={() => navigation.goBack()} w="50%">
             Back
@@ -94,7 +88,7 @@ const Confirm: React.FC = () => {
           </Button>
         </Button.Group>
       </VStack>
-    </ScrollView>
+    </Box>
   );
 };
 
