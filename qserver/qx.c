@@ -200,14 +200,14 @@ void process_contractresponse(uint32_t dejavu,int32_t peerid,char *ipaddr,uint8_
     {
         if ( ASKvu[peerid][i] == dejavu )
         {
-            disp_assetorders(-1,ASSETS[i].name,data,datasize);
+            disp_assetorders(-1,ASSETS[i].assetname,data,datasize);
             ASKvu[peerid][i] = 0;
             ASKvutick[peerid][i] = 0;
             return;
         }
         if ( BIDvu[peerid][i] == dejavu )
         {
-            disp_assetorders(1,ASSETS[i].name,data,datasize);
+            disp_assetorders(1,ASSETS[i].assetname,data,datasize);
             BIDvu[peerid][i] = 0;
             BIDvutick[peerid][i] = 0;
             return;
