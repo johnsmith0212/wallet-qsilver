@@ -21,20 +21,21 @@ exports.createAccount = async (req, res) => {
 }
 
 exports.login = async (req, res) => {
-    let liveSocket = socketManager.initLiveSocket();
+    const { password, socketUrl } = req.body;
+    let liveSocket = socketManager.initLiveSocket(socketUrl);
     liveSocketController(liveSocket)
     await delay(1000);
-    const { password } = req.body;
     let realPassword;
     stateManager.init();
     const resultFor24words = await wasmManager.ccall({ command: `checkavail ${password}`, flag: 'login' });
     const resultFor55chars = await wasmManager.ccall({ command: `checkavail Q${password}`, flag: 'login' });
-    if (resultFor24words.value.result != -33 && resultFor55chars.value.result != -33) {
+    const passwordExistCode = -24;
+    if (resultFor24words.value.result != passwordExistCode && resultFor55chars.value.result != passwordExistCode) {
         res.status(401).send('Password does not exist.');
         return
-    } else if (resultFor24words.value.result == -33) {
+    } else if (resultFor24words.value.result == passwordExistCode) {
         realPassword = password;
-    } else if (resultFor55chars.value.result == -33) {
+    } else if (resultFor55chars.value.result == passwordExistCode) {
         realPassword = `Q${password}`;
     }
 
@@ -230,10 +231,10 @@ exports.transfer = async (req, res) => {
 }
 
 exports.socket = async (req, res) => {
-    const { command } = req.body;
+    const { command, socketUrl } = req.body;
     let liveSocket = socketManager.getLiveSocket();
     if (!liveSocket) {
-        liveSocket = socketManager.initLiveSocket();
+        liveSocket = socketManager.initLiveSocket(socketUrl);
         liveSocketController(liveSocket)
         await delay(500);
     }
@@ -268,4 +269,33 @@ exports.history = async (req, res) => {
     const { address } = req.body;
     const result = await socketSync(`history ${address}`);
     res.send(result);
+}
+
+exports.switchNetwork = async (req, res) => {
+    res.send('success');
+}
+
+exports.tokens = async (req, res) => {
+    const result = await socketSync('tokenlist');
+    res.send(result);
+}
+exports.basicInfo = async (req, res) => {
+
+    let liveSocket = socketManager.getLiveSocket();
+    if (!liveSocket) {
+        res.status(401).send('Socket server error.');
+        return
+    }
+    const balances = await socketSync('balances');
+    const marketcap = await socketSync('marketcap');
+    const tokens = await socketSync('tokenlist');
+    const richlist = {};
+    const qurichlist = await socketSync('richlist');
+    richlist[qurichlist.name] = qurichlist.richlist;
+    for (let idx = 0; idx < tokens.tokens.length; idx++) {
+        const richlistResult = await socketSync(`richlist.${tokens.tokens[idx]}`)
+        richlist[richlistResult.name] = richlistResult.richlist;
+    }
+
+    res.send({ balances: balances.balances, marketcap, tokens: tokens.tokens, richlist });
 }
