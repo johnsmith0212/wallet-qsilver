@@ -1,24 +1,6 @@
-type SidebarItemProps = {
-    icon: string;
-    label: string;
-    link: string;
-    active?: boolean;
-    onClick?: () => void;
+export type TransactionItem = [number, string, string, string];
+
+export type RichList = {
+    name: string,
+    richlist: [[number, string, string]],
 };
-
-
-type SummaryItemProps = {
-    icon: string;
-    label: string;
-    amount: string;
-};
-
-type AssetItemProps = {
-    icon: string;
-    name: string;
-    amount: string;
-    percentage: number;
-    colorClassName: string;
-};
-
-export type { SidebarItemProps, SummaryItemProps, AssetItemProps }
