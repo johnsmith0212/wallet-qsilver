@@ -83,9 +83,9 @@ android {
     buildToolsVersion rootProject.ext.buildToolsVersion
     compileSdk rootProject.ext.compileSdkVersion
 
-    namespace 'com.qsilver.qwallet'
+    namespace 'com.anonymous.qwallet'
     defaultConfig {
-        applicationId 'com.qsilver.qwallet'
+        applicationId 'com.anonymous.qwallet'
         minSdkVersion rootProject.ext.minSdkVersion
         targetSdkVersion rootProject.ext.targetSdkVersion
         versionCode 1
