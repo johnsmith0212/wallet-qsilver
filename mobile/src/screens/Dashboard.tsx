@@ -37,6 +37,7 @@ import {
   getHistory,
   getToken,
   transfer,
+  transferStatus,
 } from "../api/api";
 import eventEmitter from "../api/eventEmitter";
 import { useNavigation } from "@react-navigation/native";
@@ -142,7 +143,17 @@ const Dashboard: React.FC = () => {
     });
     eventEmitter.on("S2C/transfer", (res) => {
       if (res.data) {
-        console.log("Transfer: ", res.data);
+        const _statusInterval = setInterval(() => {
+          transferStatus();
+        }, 2000);
+        setStatusInterval(_statusInterval);
+      } else {
+        Toast.show({ type: "error", text1: "Error Occured" });
+        setSendingStatus("rejected");
+      }
+    });
+    eventEmitter.on("S2C/transfer-status", (res) => {
+      if (res.data) {
         if (res.data == "failed") {
           setSendingStatus("rejected");
           Toast.show({ type: "error", text1: "Transfer Failed!" });
@@ -165,7 +176,9 @@ const Dashboard: React.FC = () => {
           handleLogout();
         }
         login(res.data);
+        login(res.data);
         // delete balances[deleteAccount];
+        setIsDeleteAccountModalOpen(false);
         setIsDeleteAccountModalOpen(false);
       } else {
         Toast.show({ type: "error", text1: res });
