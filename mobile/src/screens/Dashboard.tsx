@@ -129,7 +129,7 @@ const Dashboard: React.FC = () => {
     });
     eventEmitter.on("S2C/basic-info", (res) => {
       if (res.data) {
-        // console.log("Basic Info: "res);
+
         res.data.balances.map((item: [number, string]) => {
           dispatch(setBalances({ index: item[0], balance: item[1] }));
         });
@@ -164,8 +164,9 @@ const Dashboard: React.FC = () => {
         if (user?.accountInfo.addresses.indexOf(deleteAccount) == 0) {
           handleLogout();
         }
+        login(res.data);
         // delete balances[deleteAccount];
-        toggleDeleteAccountModal();
+        setIsDeleteAccountModalOpen(false);
       } else {
         Toast.show({ type: "error", text1: res });
       }
@@ -270,7 +271,9 @@ const Dashboard: React.FC = () => {
       <VStack style={tw`p-4 w-full h-full rounded-xl`}>
         <View style={tw`border-b py-2`}>
           <View style={tw`px-2 flex flex-row items-center`}>
-            <TouchableOpacity onPress={() => navigation.goBack()}>
+            <TouchableOpacity
+              onPress={() => handleClickAccount(currentAddress)}
+            >
               <Image
                 source={require("../../assets/icon.png")}
                 style={tw`w-20 h-20`}
@@ -332,6 +335,10 @@ const Dashboard: React.FC = () => {
                       currentAddress === item ? "" : ""
                     } flex-col items-center bg-blue-800 w-32 mx-2`}
                     onPress={() => handleSelectAccount(item)}
+                    onLongPress={() => {
+                      setDeleteAccount(item);
+                      toggleDeleteAccountModal();
+                    }}
                   >
                     <Text style={tw`text-white`}>{`${item.slice(
                       0,
@@ -437,7 +444,7 @@ const Dashboard: React.FC = () => {
                 data={histories}
                 renderItem={({ item }) => (
                   <View
-                    style={tw`flex-row justify-between p-2 ${
+                    style={tw`flex-col justify-between p-2 ${
                       item[3].startsWith("-")
                         ? "text-red-500"
                         : "text-green-500"
@@ -542,13 +549,12 @@ const Dashboard: React.FC = () => {
           </Modal.Header>
           <Modal.Body>
             <Text>{deleteAccount}</Text>
-            <HStack justifyContent="flex-end" mt="4" space="4">
+            <HStack justifyContent="flex-end" mt="4" space="2">
               <Button
                 isDisabled={deletingStatus}
                 onPress={handleDeleteAccount}
                 bg="red.500"
                 _text={{ color: "white" }}
-                _hover={{ bg: "red.600" }}
               >
                 Yes
               </Button>
@@ -556,7 +562,6 @@ const Dashboard: React.FC = () => {
                 onPress={toggleDeleteAccountModal}
                 bg="blue.600"
                 _text={{ color: "white" }}
-                _hover={{ bg: "blue.700" }}
               >
                 No
               </Button>
