@@ -110,10 +110,6 @@ rn_bridge.channel.on("message", async (msg) => {
         );
         break;
       }
-      case "C2S/transfer-status": {
-        transferStatus()
-        break;
-      }
       case "C2S/switch-network": {
         switchNetwork();
         break;

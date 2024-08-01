@@ -37,7 +37,6 @@ import {
   getHistory,
   getToken,
   transfer,
-  transferStatus,
 } from "../api/api";
 import eventEmitter from "../api/eventEmitter";
 import { useNavigation } from "@react-navigation/native";
@@ -130,6 +129,7 @@ const Dashboard: React.FC = () => {
     });
     eventEmitter.on("S2C/basic-info", (res) => {
       if (res.data) {
+        // console.log("Basic Info: "res);
         res.data.balances.map((item: [number, string]) => {
           dispatch(setBalances({ index: item[0], balance: item[1] }));
         });
@@ -142,17 +142,7 @@ const Dashboard: React.FC = () => {
     });
     eventEmitter.on("S2C/transfer", (res) => {
       if (res.data) {
-        const _statusInterval = setInterval(() => {
-          transferStatus();
-        }, 2000);
-        setStatusInterval(_statusInterval);
-      } else {
-        Toast.show({ type: "error", text1: "Error Occured" });
-        setSendingStatus("rejected");
-      }
-    });
-    eventEmitter.on("S2C/transfer-status", (res) => {
-      if (res.data) {
+        console.log("Transfer: ", res.data);
         if (res.data == "failed") {
           setSendingStatus("rejected");
           Toast.show({ type: "error", text1: "Transfer Failed!" });
@@ -174,9 +164,8 @@ const Dashboard: React.FC = () => {
         if (user?.accountInfo.addresses.indexOf(deleteAccount) == 0) {
           handleLogout();
         }
-        login(res.data);
         // delete balances[deleteAccount];
-        setIsDeleteAccountModalOpen(false);
+        toggleDeleteAccountModal();
       } else {
         Toast.show({ type: "error", text1: res });
       }
@@ -281,9 +270,7 @@ const Dashboard: React.FC = () => {
       <VStack style={tw`p-4 w-full h-full rounded-xl`}>
         <View style={tw`border-b py-2`}>
           <View style={tw`px-2 flex flex-row items-center`}>
-            <TouchableOpacity
-              onPress={() => handleClickAccount(currentAddress)}
-            >
+            <TouchableOpacity onPress={() => navigation.goBack()}>
               <Image
                 source={require("../../assets/icon.png")}
                 style={tw`w-20 h-20`}
@@ -319,15 +306,10 @@ const Dashboard: React.FC = () => {
             {" | "}
             <Text style={tw`text-lg`}>
               $
-              {Math.floor(
-                balances.reduce(
-                  (acc, currentValue) => acc + Number(currentValue),
-                  0
-                ) *
-                  parseFloat(marketcap.price) *
-                  1000
-              ) / 1000}
-              {/* Only extract 3 float digit */}
+              {balances.reduce(
+                (acc, currentValue) => acc + Number(currentValue),
+                0
+              ) * parseFloat(marketcap.price)}
             </Text>
           </Text>
           <Text style={tw`text-2xl`}>Tick: {tick}</Text>
@@ -350,10 +332,6 @@ const Dashboard: React.FC = () => {
                       currentAddress === item ? "" : ""
                     } flex-col items-center bg-blue-800 w-32 mx-2`}
                     onPress={() => handleSelectAccount(item)}
-                    onLongPress={() => {
-                      setDeleteAccount(item);
-                      toggleDeleteAccountModal();
-                    }}
                   >
                     <Text style={tw`text-white`}>{`${item.slice(
                       0,
@@ -459,7 +437,7 @@ const Dashboard: React.FC = () => {
                 data={histories}
                 renderItem={({ item }) => (
                   <View
-                    style={tw`flex-col justify-between p-2 ${
+                    style={tw`flex-row justify-between p-2 ${
                       item[3].startsWith("-")
                         ? "text-red-500"
                         : "text-green-500"
@@ -564,12 +542,13 @@ const Dashboard: React.FC = () => {
           </Modal.Header>
           <Modal.Body>
             <Text>{deleteAccount}</Text>
-            <HStack justifyContent="flex-end" mt="4" space="2">
+            <HStack justifyContent="flex-end" mt="4" space="4">
               <Button
                 isDisabled={deletingStatus}
                 onPress={handleDeleteAccount}
                 bg="red.500"
                 _text={{ color: "white" }}
+                _hover={{ bg: "red.600" }}
               >
                 Yes
               </Button>
@@ -577,6 +556,7 @@ const Dashboard: React.FC = () => {
                 onPress={toggleDeleteAccountModal}
                 bg="blue.600"
                 _text={{ color: "white" }}
+                _hover={{ bg: "blue.700" }}
               >
                 No
               </Button>
@@ -631,18 +611,18 @@ const Dashboard: React.FC = () => {
                     />
                   ) : (
                     <>
-                      <VStack space={2} alignItems="left">
+                      <HStack space={2} alignItems="center">
                         <Text style={tw`text-indigo-500 font-semibold`}>
                           Expected Tick:
                         </Text>
                         <Text>{expectedTick}</Text>
-                      </VStack>
-                      <VStack space={2} alignItems="left">
+                      </HStack>
+                      <HStack space={2} alignItems="center">
                         <Text style={tw`text-indigo-500 font-semibold`}>
                           Status:
                         </Text>
                         <Text>{sendingResult}</Text>
-                      </VStack>
+                      </HStack>
                     </>
                   )}
                 </VStack>

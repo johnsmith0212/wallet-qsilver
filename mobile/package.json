@@ -10,8 +10,7 @@
     "clean": "cd android && gradlew clean && cd ..",
     "build": "expo build:android -t app-bundle",
     "serverlog": "adb logcat | grep NODEJS-MOBILE",
-    "node": "nodemon",
-    "release":"cd android && gradlew assembleRelease"
+    "node": "nodemon"
   },
   "dependencies": {
     "@expo/metro-runtime": "^3.1.3",

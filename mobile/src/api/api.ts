@@ -95,12 +95,3 @@ export const transfer = (
     })
   );
 };
-
-export const transferStatus = () => {
-  nodejs.channel.send(
-    JSON.stringify({
-      action: "C2S/transfer-status",
-      data: {},
-    })
-  );
-};
