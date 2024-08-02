@@ -1,9 +1,9 @@
-import { useState } from "react";
 import { Link } from "react-router-dom";
 
 import LoginContainer from "../Login/LoginContainer";
 import Button from "../../components/commons/Button";
 import ColumnGrid from "./ColumnGrid";
+import { useState } from "react";
 
 const SignUpSeeds = () => {
     const [backup, setBackup] = useState(false);
@@ -16,7 +16,7 @@ const SignUpSeeds = () => {
                 className="w-3/6 lg:w-auto"
             />
 
-            <div className="w-full flex flex-col gap-[60px]">
+            <div className="w-2/5 flex flex-col gap-[60px]">
                 <img
                     src="/assets/images/logo.svg"
                     alt="Logo"
@@ -37,13 +37,13 @@ const SignUpSeeds = () => {
                             type="checkbox"
                             name="makeBackup"
                             id="backup"
-                            className="w-4 h-4 cursor-pointer"
+                            className="w-4 h-4"
                             checked={backup}
                             onChange={() => setBackup((prev) => !prev)}
                         />
                         <label
                             htmlFor="backup"
-                            className="text-lg font-semibold font-Montserrat cursor-pointer"
+                            className="text-lg font-semibold font-Montserrat"
                         >
                             I've made a backup
                         </label>
@@ -60,10 +60,7 @@ const SignUpSeeds = () => {
                             </Button>
                         </Link>
 
-                        <Link
-                            to={"/backup/24words"}
-                            className="inline-block w-full lg:w-fit"
-                        >
+                        <Link to={"/"} className="inline-block w-full lg:w-fit">
                             <Button variant="primary" size="wide">
                                 Next
                             </Button>

@@ -31,12 +31,6 @@ const sideBarItems: SidebarItemProps[] = [
         active: false,
         link: '/settings',
     },
-    {
-        icon: '/assets/images/ui/logout.svg',
-        label: 'Log out',
-        active: false,
-        link: '/login',
-    },
 ]
 
 const summaryItems: SummaryItemProps[] = [
@@ -69,36 +63,36 @@ const assetsItems: AssetItemProps[] = [
     {
         icon: '/assets/images/tokens/qu.svg',
         name: 'QU',
-        amount: '0',
-        percentage: 0,
+        amount: '29.9',
+        percentage: 60,
         colorClassName: 'bg-[#FB03F5]',
     },
     {
         icon: '/assets/images/tokens/qtry.svg',
         name: 'QTRY',
-        amount: '0',
-        percentage: 0,
+        amount: '99',
+        percentage: 30,
         colorClassName: 'bg-[#5CFF9C]',
     },
     {
         icon: '/assets/images/tokens/random.svg',
         name: 'RANDOM',
-        amount: '0',
-        percentage: 0,
+        amount: '99',
+        percentage: 20,
         colorClassName: 'bg-[#FB035C]',
     },
     {
         icon: '/assets/images/tokens/qutil.svg',
         name: 'QUTIL',
-        amount: '0',
-        percentage: 0,
+        amount: '99',
+        percentage: 20,
         colorClassName: 'bg-[#FB03F5]',
     },
     {
         icon: '/assets/images/tokens/qft.svg',
         name: 'QFT',
-        amount: '0',
-        percentage: 0,
+        amount: '99',
+        percentage: 10,
         colorClassName: 'bg-[#50AF95]',
     },
 ]
@@ -120,7 +114,7 @@ const MODES: ModeProps[] = [
         type: 'mainnet',
     },
     {
-        wsUrl: 'ws://93.190.141.12:5678',
+        wsUrl: 'wss://qsilver.org:5555',
         type: 'testnet',
     }
 ]
