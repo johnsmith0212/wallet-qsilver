@@ -1,8 +1,4 @@
-type ModeProps = {
-    wsUrl: string;
-    type: 'mainnet' | 'testnet';
-    // add some more if need
-}
+export type TransactionItem = [number, string, string, string];
 
 type SelectOption = {
     name: string;

@@ -130,6 +130,7 @@ const Dashboard: React.FC = () => {
     });
     eventEmitter.on("S2C/basic-info", (res) => {
       if (res.data) {
+
         res.data.balances.map((item: [number, string]) => {
           dispatch(setBalances({ index: item[0], balance: item[1] }));
         });
