@@ -1,9 +1,11 @@
-import { useAuth } from "../../contexts/AuthContext";
+import { useState } from "react";
 import { handleCopy } from "../../utils/helper";
 import SwitchButton from "../dashboard/SwitchButton";
 
 const Navbar = () => {
-    const { currentAddress } = useAuth();
+    const [currentAddress, setCurrentAddress] = useState<string>("");
+    const [displayAddress, setDisplayAddress] = useState(currentAddress);
+
     return (
         <>
             <div className="grid grid-cols-[230px_1fr] gap-10 items-center">
@@ -16,7 +18,7 @@ const Navbar = () => {
                         className="cursor-pointer"
                         onClick={() => handleCopy(currentAddress)}
                     >
-                        {currentAddress}
+                        {displayAddress}
                     </span>
                     <SwitchButton />
                 </div>
