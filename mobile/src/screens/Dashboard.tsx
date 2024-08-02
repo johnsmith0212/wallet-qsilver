@@ -130,7 +130,6 @@ const Dashboard: React.FC = () => {
     });
     eventEmitter.on("S2C/basic-info", (res) => {
       if (res.data) {
-
         res.data.balances.map((item: [number, string]) => {
           dispatch(setBalances({ index: item[0], balance: item[1] }));
         });
@@ -176,9 +175,7 @@ const Dashboard: React.FC = () => {
           handleLogout();
         }
         login(res.data);
-        login(res.data);
         // delete balances[deleteAccount];
-        setIsDeleteAccountModalOpen(false);
         setIsDeleteAccountModalOpen(false);
       } else {
         Toast.show({ type: "error", text1: res });
