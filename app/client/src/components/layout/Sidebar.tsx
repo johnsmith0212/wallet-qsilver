@@ -3,7 +3,7 @@ import SidebarItem from "../dashboard/SidebarItem";
 import { useAuth } from "../../contexts/AuthContext";
 
 const Sidebar = () => {
-    const { logout, activeTabIdx, handleClickSideBar } = useAuth();
+    const { activeTabIdx, handleClickSideBar } = useAuth();
 
     return (
         <>

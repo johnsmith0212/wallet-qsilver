@@ -7,7 +7,6 @@ import { useAuth } from "../../contexts/AuthContext";
 
 const Summary: React.FC = () => {
     const { marketcap } = useAuth();
-
     const options = assetsItems.map((item) => ({
         label: item.icon,
         value: item.name,
@@ -15,6 +14,17 @@ const Summary: React.FC = () => {
 
     return (
         <div className="bg-dark rounded-lg p-5">
+            <div className="mb-5">
+                {summaryItems.map((item, idx) => {
+                    return (
+                        <SummaryItem
+                            label={item.label}
+                            icon={item.icon}
+                            amount={item.amount}
+                            key={idx}
+                        />
+                    )
+                })}
             <div className="flex flex-wrap justify-center gap-5 mb-5">
                 <SummaryItem
                     label="Total assets"

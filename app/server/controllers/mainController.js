@@ -24,7 +24,7 @@ exports.login = async (req, res) => {
     const { password, socketUrl } = req.body;
     let liveSocket = socketManager.initLiveSocket(socketUrl);
     liveSocketController(liveSocket)
-    await delay(2000);
+    await delay(1000);
     let realPassword;
     stateManager.init();
     const resultFor24words = await wasmManager.ccall({ command: `checkavail ${password}`, flag: 'login' });
@@ -102,8 +102,8 @@ exports.login = async (req, res) => {
 }
 
 exports.logout = async (req, res) => {
-    const userState = stateManager.init();
-    res.send(userState);
+    stateManager.init();
+    res.send('success');
 }
 
 exports.fetchUser = async (req, res) => {
