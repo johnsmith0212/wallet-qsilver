@@ -108,7 +108,29 @@ exports.logout = async (req, res) => {
 
 exports.fetchUser = async (req, res) => {
     const userState = stateManager.getUserState();
-    res.send(userState);
+    // res.send(userState);
+
+    let liveSocket = socketManager.getLiveSocket();
+    if (!liveSocket) {
+        res.status(401).send('Socket server error.');
+        return
+    }
+    const balances = await socketSync('balances');
+    const marketcap = await socketSync('marketcap');
+    const tokens = await socketSync('tokenlist');
+    const richlist = {};
+    const qurichlist = await socketSync('richlist');
+    richlist[qurichlist.name] = qurichlist.richlist;
+    try {
+        for (let idx = 0; idx < tokens.tokens.length; idx++) {
+            const richlistResult = await socketSync(`richlist.${tokens.tokens[idx]}`)
+            richlist[richlistResult.name] = richlistResult.richlist;
+        }
+    } catch (error) {
+        
+    }
+
+    res.send({...userState, ...{ balances: balances.balances, marketcap, tokens: tokens.tokens, richlist }});
 }
 
 exports.deleteAccount = async (req, res) => {

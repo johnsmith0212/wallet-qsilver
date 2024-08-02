@@ -11,7 +11,6 @@ import { useNavigate } from "react-router-dom";
 import { MODES, SERVER_URL, sideBarItems } from "../utils/constants";
 import { io, Socket } from "socket.io-client";
 import axios from "axios";
-import { ModeProps } from "../utils/interfaces";
 import { toast } from "react-toastify";
 
 interface AuthContextType {
@@ -48,30 +47,47 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({
     const [activeTabIdx, setActiveTabIdx] = useState(0);
 
     const [tick, setTick] = useState("");
-    const [balances, setBalances] = useState(0);
+
 
     const [password, setPassword] = useState<string>("");
     const [confirmPassword, setConfirmPassword] = useState<string>("");
 
-    const login = (password: string) => {
-        if (!password || !confirmPassword) {
             toast.error("Password Invalid");
             return;
         }
-
-        axios
-            .post(`${SERVER_URL}/api/login`, {
+        let resp;
+        try {
+            resp = await axios.post(`${SERVER_URL}/api/login`, {
                 password,
                 socketUrl: mode.wsUrl,
-            })
-            .then(() => {
-                setIsAuthenticated(true);
+
+            });
+        } catch (error) {}
+
+        if (resp && resp.status == 200) {
+            setIsAuthenticated(resp.data.isAuthenticated);
+            setPassword(resp.data.password);
+            setAccountInfo(resp.data.accountInfo);
+            await fetchInfo();
+        } else {
+            toast.error("Couldn't log in");
+            setIsAuthenticated(false);
+        }
+        setLoading(false);
+    };
+
+    const logout = () => {
+        axios
+            .post(`${SERVER_URL}/api/logout`)
+            .then((resp) => {
+                setIsAuthenticated(resp.data.isAuthenticated);
+                setPassword(resp.data.password);
+                setAccountInfo(resp.data.accountInfo);
             })
             .catch(() => {
-                toast.error("Couldn't log in");
-                setIsAuthenticated(false);
-            })
-            .finally(() => { });
+                toast.error("Can't logout");
+            });
+        // navigate("/login");
     };
 
     const toAccountOption = (password: string, confirmPassword: string) => {
@@ -126,6 +142,53 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({
         setActiveTabIdx(idx);
         navigate(sideBarItems[idx].link);
     };
+    const handleAddAccount = () => {
+        let index = accountInfo?.addresses.findIndex((item) => item == "");
+        if (index == -1) {
+            index = accountInfo?.addresses.length;
+        }
+        axios
+            .post(`${SERVER_URL}/api/add-account`, {
+                password: password,
+                index,
+            })
+            .then((resp) => {
+                setIsAuthenticated(resp.data.isAuthenticated);
+                setPassword(resp.data.password);
+                setAccountInfo(resp.data.accountInfo);
+                // fetchInfo()
+            })
+            .catch(() => {});
+    };
+
+    const fetchInfo = async () => {
+        let resp;
+        try {
+            resp = await axios.post(`${SERVER_URL}/api/fetch-user`);
+        } catch (error) {}
+
+        if (resp && resp.status == 200) {
+            const data = resp.data;
+            setIsAuthenticated(data.isAuthenticated);
+            setPassword(data.password);
+            setAccountInfo(data.accountInfo);
+            data.balances?.map((item: [number, string]) => {
+                if (data.accountInfo?.addresses[item[0]])
+                    setBalances((prev) => {
+                        return {
+                            ...prev,
+                            [data.accountInfo?.addresses[item[0]]]: parseFloat(
+                                item[1]
+                            ),
+                        };
+                    });
+            });
+            setMarketcap(data.marketcap);
+            setTokens(["QU", ...(data?.tokens || [])]);
+            setRichlist(data.richlist);
+        } else {
+        }
+    };
 
     useEffect(() => {
         const newSocket = io(wsUrl);
@@ -137,15 +200,10 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({
                 // dispatch(setTick(data.tick));
             } else if (data.command == "EntityInfo") {
                 console.log(data.balance, 1);
-                // dispatch(setBalances({ [data.address]: parseFloat(data.balance) }));
+
             } else if (data.balances) {
                 console.log(data.balances, 2);
                 data.balances.map((item: [number, string]) => {
-                    // dispatch(setBalances({ index: item[0], balance: item[1] }));
-                });
-            } else if (data.richlist) {
-                console.log(data.richlist, 3);
-                // dispatch(updateRichlist(data));
             } else if (data.marketcap) {
                 console.log(data.marketcap, 4);
             }
@@ -155,6 +213,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({
             newSocket.close();
         };
     }, [wsUrl]);
+
 
     return (
         <AuthContext.Provider
@@ -171,7 +230,6 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({
                 create,
             }}
         >
-            {children}
         </AuthContext.Provider>
     );
 };

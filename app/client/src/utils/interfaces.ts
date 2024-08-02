@@ -4,6 +4,11 @@ type ModeProps = {
     // add some more if need
 }
 
+type SelectOption = {
+    name: string;
+    iconUrl: string;
+};
+
 type SidebarItemProps = {
     icon: string;
     label: string;
@@ -26,5 +31,3 @@ type AssetItemProps = {
     percentage: number;
     colorClassName: string;
 };
-
-export type { SidebarItemProps, SummaryItemProps, AssetItemProps, ModeProps }

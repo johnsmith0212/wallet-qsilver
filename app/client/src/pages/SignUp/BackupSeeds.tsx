@@ -1,12 +1,11 @@
-import { useState } from "react";
 import { Link } from "react-router-dom";
 
 import LoginContainer from "../Login/LoginContainer";
 import Button from "../../components/commons/Button";
 import ColumnGrid from "./ColumnGrid";
 
-const SignUpSeeds = () => {
-    const [backup, setBackup] = useState(false);
+const BackupSeeds = () => {
+    // const [backup, setBackup] = useState(false);
 
     return (
         <LoginContainer>
@@ -30,24 +29,7 @@ const SignUpSeeds = () => {
                         for safe keeping
                     </p>
 
-                    <ColumnGrid />
-
-                    <div className="flex items-center gap-5">
-                        <input
-                            type="checkbox"
-                            name="makeBackup"
-                            id="backup"
-                            className="w-4 h-4"
-                            checked={backup}
-                            onChange={() => setBackup((prev) => !prev)}
-                        />
-                        <label
-                            htmlFor="backup"
-                            className="text-lg font-semibold font-Montserrat"
-                        >
-                            I've made a backup
-                        </label>
-                    </div>
+                    <ColumnGrid inputValues />
 
                     <div className="flex justify-center gap-8 lg:gap-20">
                         <Link
@@ -61,7 +43,7 @@ const SignUpSeeds = () => {
                         </Link>
 
                         <Link
-                            to={"/backup/24words"}
+                            to={"/dashboard"}
                             className="inline-block w-full lg:w-fit"
                         >
                             <Button variant="primary" size="wide">
@@ -75,4 +57,4 @@ const SignUpSeeds = () => {
     );
 };
 
-export default SignUpSeeds;
+export default BackupSeeds;
