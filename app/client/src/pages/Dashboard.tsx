@@ -443,7 +443,7 @@ const Dashboard: React.FC = () => {
                 }
             </Modal>
         </>
-    )
-}
+    );
+};
 
 export default Dashboard;
