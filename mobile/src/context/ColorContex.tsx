@@ -1,6 +1,6 @@
 import React, { ReactNode, createContext, useContext } from "react";
 import { useColorModeValue, NativeBaseProvider } from "native-base";
-
+import colors from "../utils/colors";
 
 interface ColorContextState {
   bgColor: string;
@@ -31,7 +31,6 @@ interface ColorProviderProps {
 const ColorContext = createContext<ColorContextState | undefined>(undefined);
 
 export const ColorProvider: React.FC<ColorProviderProps> = ({ children }) => {
-
   const bgColor = useColorModeValue(colors.light.bgColor, colors.dark.bgColor);
   const textColor = useColorModeValue(
     colors.light.textColor,

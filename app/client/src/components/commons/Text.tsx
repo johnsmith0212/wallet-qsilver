@@ -3,10 +3,9 @@ import React, { ReactNode } from "react";
 type TextProps = {
     children: ReactNode;
     size?: "base" | "xs" | "sm" | "lg" | "xl";
-    weight?: "base" | "light" | "medium" | "semibold" | "bold";
+    weight?: "base" | "light" | "medium" | "semibold";
     font?: "inter" | "montserrat";
     className?: string;
-    onClick?: () => void;
 };
 
 const Text: React.FC<TextProps> = ({
@@ -15,7 +14,6 @@ const Text: React.FC<TextProps> = ({
     weight = "base",
     font = "inter",
     className = "",
-    onClick,
 }) => {
     const sizes = {
         base: "regular",
@@ -29,7 +27,6 @@ const Text: React.FC<TextProps> = ({
         light: "light",
         medium: "medium",
         semibold: "semibold",
-        bold: "bold",
     };
     const fontTypes = {
         inter: "Inter",
@@ -39,7 +36,6 @@ const Text: React.FC<TextProps> = ({
     return (
         <p
             className={`text-${sizes[size]} font-${weights[weight]} font-${fontTypes[font]}  ${className}`}
-            onClick={onClick}
         >
             {children}
         </p>
