@@ -27,20 +27,4 @@ type AssetItemProps = {
     colorClassName: string;
 };
 
-interface AccountInfoInterface {
-    addresses: string[];
-    numaddr: number;
-    subshash: string;
-}
-
-interface MarketcapInterface {
-    supply: string;
-    price: string;
-    marketcap: string;
-}
-
-interface RichListInterface {
-    [address: string]: [number, string, string][];
-}
-
-export type { SidebarItemProps, SummaryItemProps, AssetItemProps, ModeProps, AccountInfoInterface, MarketcapInterface, RichListInterface }
+export type { SidebarItemProps, SummaryItemProps, AssetItemProps, ModeProps }
