@@ -6,7 +6,6 @@ type TextProps = {
     weight?: "base" | "light" | "medium" | "semibold" | "bold";
     font?: "inter" | "montserrat";
     className?: string;
-    onClick?: () => void;
 };
 
 const Text: React.FC<TextProps> = ({
@@ -15,7 +14,6 @@ const Text: React.FC<TextProps> = ({
     weight = "base",
     font = "inter",
     className = "",
-    onClick,
 }) => {
     const sizes = {
         base: "regular",
@@ -39,7 +37,6 @@ const Text: React.FC<TextProps> = ({
     return (
         <p
             className={`text-${sizes[size]} font-${weights[weight]} font-${fontTypes[font]}  ${className}`}
-            onClick={onClick}
         >
             {children}
         </p>

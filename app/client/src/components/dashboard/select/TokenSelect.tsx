@@ -72,7 +72,7 @@ const TokenSelect: React.FC<TokenSelectProps> = ({
 
                 {!hideTokenValue && (
                     <span className="font-Inter font-bold text-2xl">
-                        ${selectedToken?.name}
+                        ${selectedToken?.amount}
                     </span>
                 )}
             </div>
