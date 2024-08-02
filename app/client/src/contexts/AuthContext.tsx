@@ -11,19 +11,41 @@ import { useNavigate } from "react-router-dom";
 import { MODES, SERVER_URL, sideBarItems } from "../utils/constants";
 import { io, Socket } from "socket.io-client";
 import axios from "axios";
+import {
+    AccountInfoInterface,
+    MarketcapInterface,
+    ModeProps,
+    RichListInterface,
+} from "../utils/interfaces";
 import { toast } from "react-toastify";
+import { Loading } from "../components/commons";
 
 interface AuthContextType {
     isAuthenticated: boolean;
     activeTabIdx: number;
     socket: Socket | undefined;
     seedType: string;
+    seeds: string | string[];
+    accountInfo: AccountInfoInterface | undefined;
+    marketcap: MarketcapInterface | undefined;
+    tokens: string[];
+    tick: string;
+    balances: Balances;
+    richlist: RichListInterface;
+    currentAddress: string;
+    tokenBalances: { [name: string]: Balances };
     setSeedType: Dispatch<SetStateAction<"55chars" | "24words">>;
+    setMode: Dispatch<SetStateAction<ModeProps>>;
+    setCurrentAddress: Dispatch<SetStateAction<string>>;
     login: (password: string) => void;
     logout: () => void;
     create: () => void;
+    handleAddAccount: () => void;
     toAccountOption: (password: string, confirmPassword: string) => void;
     handleClickSideBar: (idx: number) => void;
+}
+interface Balances {
+    [address: string]: number;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
@@ -45,13 +67,28 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({
     const [socket, setSocket] = useState<Socket>();
     const [isAuthenticated, setIsAuthenticated] = useState<boolean>(false);
     const [activeTabIdx, setActiveTabIdx] = useState(0);
+    const [accountInfo, setAccountInfo] = useState<AccountInfoInterface>();
 
     const [tick, setTick] = useState("");
-
+    const [balances, setBalances] = useState<Balances>({});
+    const [tokenBalances, setTokenBalances] = useState<{
+        [name: string]: Balances;
+    }>({});
+    const [marketcap, setMarketcap] = useState<MarketcapInterface>();
+    const [tokens, setTokens] = useState<string[]>([]);
+    const [richlist, setRichlist] = useState<RichListInterface>({});
+    const [currentAddress, setCurrentAddress] = useState<string>("");
 
     const [password, setPassword] = useState<string>("");
-    const [confirmPassword, setConfirmPassword] = useState<string>("");
 
+    const [loading, setLoading] = useState<boolean>(true);
+
+    const login = async (password: string) => {
+        if(password == "") {
+            return
+        }
+        setLoading(true);
+        if (!password) {
             toast.error("Password Invalid");
             return;
         }
@@ -60,7 +97,6 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({
             resp = await axios.post(`${SERVER_URL}/api/login`, {
                 password,
                 socketUrl: mode.wsUrl,
-
             });
         } catch (error) {}
 
@@ -97,8 +133,6 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({
         }
 
         setPassword(password);
-        setConfirmPassword(confirmPassword);
-
         navigate("/signup/options");
     };
 
@@ -107,6 +141,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({
         console.log(seedType);
 
         if (seedType == "55chars") passwordPrefix = "Q";
+
         axios
             .post(`${SERVER_URL}/api/ccall`, {
                 command: `login ${passwordPrefix}${password}`,
@@ -132,16 +167,12 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({
             });
     };
 
-    const logout = () => {
-        setIsAuthenticated(false);
-        navigate("/login");
-    };
-
     const handleClickSideBar = (idx: number) => {
         console.log(idx);
         setActiveTabIdx(idx);
         navigate(sideBarItems[idx].link);
     };
+
     const handleAddAccount = () => {
         let index = accountInfo?.addresses.findIndex((item) => item == "");
         if (index == -1) {
@@ -195,15 +226,28 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({
         setSocket(newSocket);
 
         newSocket.on("live", (data) => {
-            console.log(data, "all");
             if (data.command == "CurrentTickInfo") {
-                // dispatch(setTick(data.tick));
+                setTick(data.tick);
             } else if (data.command == "EntityInfo") {
                 console.log(data.balance, 1);
-
+                if (data.address)
+                    setBalances((prev) => {
+                        return {
+                            ...prev,
+                            [data.address]: parseFloat(data.balance),
+                        };
+                    });
             } else if (data.balances) {
-                console.log(data.balances, 2);
                 data.balances.map((item: [number, string]) => {
+                    if (data[0])
+                        setBalances((prev) => {
+                            return { ...prev, [data[0]]: parseFloat(item[1]) };
+                        });
+                });
+            } else if (data.richlist) {
+                setRichlist((prev) => {
+                    return { ...prev, [data.name]: data.richlist };
+                });
             } else if (data.marketcap) {
                 console.log(data.marketcap, 4);
             }
@@ -214,6 +258,31 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({
         };
     }, [wsUrl]);
 
+    useEffect(() => {
+        setTokenBalances((prev) => {
+            return { ...prev, QU: balances };
+        });
+    }, [balances]);
+
+    useEffect(() => {
+        if (accountInfo) setCurrentAddress(accountInfo.addresses[0]);
+    }, [accountInfo]);
+
+    useEffect(() => {
+        async function init() {
+            await login(password);
+        }
+        init();
+    }, [mode]);
+
+    useEffect(() => {
+        async function init() {
+            setLoading(true);
+            await fetchInfo();
+            setLoading(false);
+        }
+        init();
+    }, []);
 
     return (
         <AuthContext.Provider
@@ -222,14 +291,27 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({
                 isAuthenticated,
                 activeTabIdx,
                 seedType,
+                seeds,
+                marketcap,
+                tokens,
+                accountInfo,
+                richlist,
+                tick,
+                balances,
+                tokenBalances,
+                currentAddress,
+                handleAddAccount,
+                setMode,
                 setSeedType,
                 handleClickSideBar,
                 login,
                 logout,
                 toAccountOption,
                 create,
+                setCurrentAddress,
             }}
         >
+            {loading ? <Loading /> : children}
         </AuthContext.Provider>
     );
 };
