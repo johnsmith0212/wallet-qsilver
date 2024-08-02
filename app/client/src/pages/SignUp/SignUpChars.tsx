@@ -3,13 +3,20 @@ import { Link } from "react-router-dom";
 import LoginContainer from "../Login/LoginContainer";
 import Button from "../../components/commons/Button";
 import { useState } from "react";
+import { useAuth } from "../../contexts/AuthContext";
 
 const SignUpChars = () => {
     const [backup, setBackup] = useState(false);
 
+    const { seeds } = useAuth();
+
     return (
         <LoginContainer>
-
+            <img
+                src="/assets/images/tech-blocks-image.png"
+                alt="Cloud technology communication"
+                className="w-3/6 lg:w-auto"
+            />
 
             <div className="w-2/5 flex flex-col gap-[60px]">
                 <img
@@ -25,11 +32,6 @@ const SignUpChars = () => {
                         for safe keeping
                     </p>
 
-                    <p className="mx-auto text-base font-semibold font-Inter underline underline-offset-4">gfhsdfgfddffsfadfsdfasdvsdfsadfasdfasdffadsfasdfsdag</p>
-
-                    <div className="flex items-center gap-5">
-                        <input type="checkbox" name="makeBackup" id="backup" className="w-4 h-4" checked={backup} onChange={() => setBackup((prev) => !prev)}/>
-                        <label htmlFor="backup" className="text-lg font-semibold font-Montserrat">I've made a backup</label>
                     <p className="mx-auto text-base font-semibold font-Inter underline underline-offset-4">
                         {seeds}
                     </p>
