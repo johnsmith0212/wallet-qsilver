@@ -3,18 +3,17 @@ import { Link } from "react-router-dom";
 import LoginContainer from "../Login/LoginContainer";
 import Input from "../../components/commons/Input";
 import Button from "../../components/commons/Button";
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { useAuth } from "../../contexts/AuthContext";
 
 const SignUp = () => {
-    const { toAccountOption, socket, passwordAvailStatus, setPasswordAvailStatus } = useAuth();
+    const { toAccountOption } = useAuth();
 
     const [password, setPassword] = useState<string>("");
     const [confirmPassword, setConfirmPassword] = useState<string>("");
 
     const handlePasswordChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         setPassword(e.target.value);
-        socket?.emit('passwordAvail', { command: `checkavail ${e.target.value}`, flag: 'checkavail' });
     };
 
     const handleConfirmPasswordChange = (
@@ -26,10 +25,6 @@ const SignUp = () => {
     const handleNext = () => {
         toAccountOption(password, confirmPassword);
     };
-
-    useEffect(() => {
-        setPasswordAvailStatus(false);
-    }, [])
 
     return (
         <LoginContainer>
@@ -53,18 +48,12 @@ const SignUp = () => {
                         type="password"
                         onChange={handlePasswordChange}
                     />
-                    {!passwordAvailStatus && password != '' &&
-                        <p>Password already exist.</p>
-                    }
                     <Input
                         label="Confirm Password"
                         inputId="confirmPassword"
                         type="password"
                         onChange={handleConfirmPasswordChange}
                     />
-                    {password != confirmPassword &&
-                        <p>Password does not match.</p>
-                    }
 
                     <div className="flex justify-center gap-8 lg:gap-20">
                         <Link
@@ -81,8 +70,6 @@ const SignUp = () => {
                                 variant="primary"
                                 size="wide"
                                 onClick={handleNext}
-                                disable={!passwordAvailStatus || password == '' || confirmPassword == '' || (password != confirmPassword)}
-                                className={!passwordAvailStatus || password == '' || confirmPassword == '' || (password != confirmPassword) ? 'cursor-not-allowed' : ''}
                             >
                                 Next
                             </Button>

@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { Link } from "react-router-dom";
 import Button from "../../components/commons/Button";
 import Input from "../../components/commons/Input";
@@ -6,22 +6,17 @@ import LoginContainer from "./LoginContainer";
 import { useAuth } from "../../contexts/AuthContext";
 
 const Login = () => {
-    const { login, socket, passwordAvailStatus, setPasswordAvailStatus } = useAuth();
+    const { login } = useAuth();
 
     const [password, setPassword] = useState<string>("");
 
     const handleChangePassword = (e: React.ChangeEvent<HTMLInputElement>) => {
         setPassword(e.target.value);
-        socket?.emit('passwordAvail', { command: `checkavail ${e.target.value}`, flag: 'checkavail' });
     };
 
     const handleLogin = () => {
         login(password);
     };
-
-    useEffect(() => {
-        setPasswordAvailStatus(false);
-    }, [])
 
     return (
         <LoginContainer>
@@ -45,9 +40,7 @@ const Login = () => {
                         type="password"
                         onChange={handleChangePassword}
                     />
-                    {passwordAvailStatus && password != '' &&
-                        <p>Password does not exist.</p>
-                    }
+
                     <div className="flex justify-center gap-8 lg:gap-20">
                         <Link
                             to={"/signup"}
@@ -65,8 +58,6 @@ const Login = () => {
                                 variant="primary"
                                 size="wide"
                                 onClick={handleLogin}
-                                disable={passwordAvailStatus || password == ''}
-                                className={passwordAvailStatus || password == '' ? 'cursor-not-allowed' : ''}
                             >
                                 Login
                             </Button>
