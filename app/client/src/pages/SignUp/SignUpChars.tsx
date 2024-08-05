@@ -68,12 +68,7 @@ const SignUpChars = () => {
                             to={"/backup/55chars"}
                             className="inline-block w-full lg:w-fit"
                         >
-                            <Button
-                                variant="primary"
-                                size="wide"
-                                className={!backup ? "cursor-not-allowed" : "cursor-pointer"}
-                                disable={!backup}
-                            >
+                            <Button variant="primary" size="wide">
                                 Next
                             </Button>
                         </Link>

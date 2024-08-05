@@ -34,16 +34,12 @@ interface AuthContextType {
     richlist: RichListInterface;
     currentAddress: string;
     tokenBalances: { [name: string]: Balances };
-    recoverStatus: boolean;
-    setRecoverStatus: Dispatch<SetStateAction<boolean>>;
     setSeedType: Dispatch<SetStateAction<"55chars" | "24words">>;
     setMode: Dispatch<SetStateAction<ModeProps>>;
-    setSeeds: Dispatch<SetStateAction<string | string[]>>;
     setCurrentAddress: Dispatch<SetStateAction<string>>;
     login: (password: string) => void;
     logout: () => void;
     create: () => void;
-    restoreAccount: () => void;
     handleAddAccount: () => void;
     toAccountOption: (password: string, confirmPassword: string) => void;
     handleClickSideBar: (idx: number) => void;
@@ -67,7 +63,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({
 
     const [mode, setMode] = useState<ModeProps>(MODES[0]);
     const [seedType, setSeedType] = useState<"55chars" | "24words">("24words");
-    const [seeds, setSeeds] = useState<string | string[]>("");
+    const [seeds, setSeeds] = useState<string>("");
     const [socket, setSocket] = useState<Socket>();
     const [isAuthenticated, setIsAuthenticated] = useState<boolean>(false);
     const [activeTabIdx, setActiveTabIdx] = useState(0);
@@ -82,14 +78,13 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({
     const [tokens, setTokens] = useState<string[]>([]);
     const [richlist, setRichlist] = useState<RichListInterface>({});
     const [currentAddress, setCurrentAddress] = useState<string>("");
-    const [recoverStatus, setRecoverStatus] = useState<boolean>(false);
 
     const [password, setPassword] = useState<string>("");
 
     const [loading, setLoading] = useState<boolean>(true);
 
     const login = async (password: string) => {
-        if (password == "") {
+        if(password == "") {
             return
         }
         setLoading(true);
@@ -103,7 +98,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({
                 password,
                 socketUrl: mode.wsUrl,
             });
-        } catch (error) { }
+        } catch (error) {}
 
         if (resp && resp.status == 200) {
             setIsAuthenticated(resp.data.isAuthenticated);
@@ -194,32 +189,14 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({
                 setAccountInfo(resp.data.accountInfo);
                 // fetchInfo()
             })
-            .catch(() => { });
+            .catch(() => {});
     };
-
-    const restoreAccount = () => {
-        axios
-            .post(`${SERVER_URL}/api/restore`, {
-                password,
-                seedType,
-                seeds
-            })
-            .then((resp) => {
-                console.log(resp.data);
-            })
-            .catch((error) => {
-                console.log(error.response);
-            })
-            .finally(() => {
-                navigate('/login');
-            })
-    }
 
     const fetchInfo = async () => {
         let resp;
         try {
             resp = await axios.post(`${SERVER_URL}/api/fetch-user`);
-        } catch (error) { }
+        } catch (error) {}
 
         if (resp && resp.status == 200) {
             const data = resp.data;
@@ -323,9 +300,6 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({
                 balances,
                 tokenBalances,
                 currentAddress,
-                recoverStatus,
-                setRecoverStatus,
-                setSeeds,
                 handleAddAccount,
                 setMode,
                 setSeedType,
@@ -334,7 +308,6 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({
                 logout,
                 toAccountOption,
                 create,
-                restoreAccount,
                 setCurrentAddress,
             }}
         >
