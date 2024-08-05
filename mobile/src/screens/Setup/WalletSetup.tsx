@@ -1,9 +1,8 @@
 import React from "react";
 import { useNavigation } from "@react-navigation/native";
-import { TouchableOpacity } from "react-native";
-import { Image, VStack, Text } from "native-base";
+import { Image, VStack, Text, Box, Flex, Pressable } from "native-base";
 import { useColors } from "../../context/ColorContex";
-import PageButton from "../../components/UI/PageButton";
+import Button from "../../components/UI/Button";
 import ButtonBox from "../../components/UI/ButtonBox";
 
 interface IProps {}
@@ -39,21 +38,21 @@ const WalletSetup: React.FC<IProps> = () => {
         </Text>
       </VStack>
       <ButtonBox>
-        <PageButton
+        <Button
           title="Import Using Seed Phrase"
           type="disabled"
           onPress={() => {
             navigation.navigate("Restore");
           }}
-        ></PageButton>
-        <PageButton
+        ></Button>
+        <Button
           title="Create New Wallet"
           type="primary"
           onPress={() => navigation.navigate("Create")}
-        ></PageButton>
-        <TouchableOpacity onPress={() => navigation.navigate("Login")}>
+        ></Button>
+        <Pressable onPress={() => navigation.navigate("Login")}>
           <Text textAlign={"center"}>Have Already Your Own Wallet?</Text>
-        </TouchableOpacity>
+        </Pressable>
       </ButtonBox>
     </VStack>
   );
