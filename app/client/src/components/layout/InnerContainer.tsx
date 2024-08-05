@@ -12,17 +12,16 @@ const InnerContainer = ({
     const gaps = {
         sm: "gap-4",
         base: "gap-8",
-        settings: "gap-12",
         forms: "gap-16",
     };
     const paddings = {
-        base: "px-12 py-16",
+        base: "p-14",
         lists: "px-20 py-11",
     };
 
     return (
         <div
-            className={`relative w-full h-full ${paddings[paddingVariant]} flex flex-col bg-dark rounded-2xl ${gaps[gapVariant]}`}
+            className={`relative h-full ${paddings[paddingVariant]} flex flex-col bg-dark rounded-2xl ${gaps[gapVariant]}`}
         >
             {children}
         </div>

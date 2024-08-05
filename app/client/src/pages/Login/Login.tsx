@@ -1,39 +1,22 @@
-import { useEffect, useState } from "react";
-import { Link, useNavigate } from "react-router-dom";
+import { useState } from "react";
+import { Link } from "react-router-dom";
 import Button from "../../components/commons/Button";
 import Input from "../../components/commons/Input";
 import LoginContainer from "./LoginContainer";
 import { useAuth } from "../../contexts/AuthContext";
-import { Text } from "../../components/commons";
 
 const Login = () => {
-    const { login, socket, setRecoverStatus } = useAuth();
-    const navigate = useNavigate();
+    const { login } = useAuth();
 
-    const [isPasswordValid, setIsPasswordValid] = useState(true);
     const [password, setPassword] = useState<string>("");
 
     const handleChangePassword = (e: React.ChangeEvent<HTMLInputElement>) => {
         setPassword(e.target.value);
-        socket?.emit('passwordAvail', { command: `checkavail ${e.target.value}`, flag: 'checkavail' });
     };
 
-    const handleLogin = (e: React.MouseEvent<HTMLButtonElement>) => {
-        e.preventDefault();
+    const handleLogin = () => {
         login(password);
     };
-
-    useEffect(() => {
-        if (socket) {
-            socket.on("passwordAvail", (msg: boolean) => {
-                setIsPasswordValid(msg);
-            });
-        }
-    }, [socket]);
-
-    useEffect(() => {
-        setRecoverStatus(false);
-    }, [])
 
     return (
         <LoginContainer>
@@ -50,24 +33,14 @@ const Login = () => {
                     className="h-[50px] self-start"
                 />
 
-                <div className="flex flex-col gap-10">
-                    <div>
-                        <Input
-                            label="Password"
-                            inputId="password"
-                            type="password"
-                            onChange={handleChangePassword}
-                        />
-                        {isPasswordValid && password != '' && (
-                            <Text
-                                size="sm"
-                                weight="semibold"
-                                className="text-moonstoneBlue mt-4"
-                            >
-                                Password does not exist.
-                            </Text>
-                        )}
-                    </div>
+                <div className="flex flex-col gap-12">
+                    <Input
+                        label="Password"
+                        inputId="password"
+                        type="password"
+                        onChange={handleChangePassword}
+                    />
+
                     <div className="flex justify-center gap-8 lg:gap-20">
                         <Link
                             to={"/signup"}
@@ -85,20 +58,18 @@ const Login = () => {
                                 variant="primary"
                                 size="wide"
                                 onClick={handleLogin}
-                                disable={isPasswordValid || password == ''}
-                                className={isPasswordValid || password == '' ? 'cursor-not-allowed' : ''}
                             >
                                 Login
                             </Button>
                         </Link>
                     </div>
 
-                    <a
-                        onClick={() => { setRecoverStatus(true); navigate('/signup') }}
-                        className="mx-auto text-gray font-semibold text-sm cursor-pointer"
+                    <Link
+                        to={"/"}
+                        className="mx-auto text-gray font-semibold text-sm"
                     >
                         Restore your wallet from your seed
-                    </a>
+                    </Link>
                 </div>
             </div>
         </LoginContainer>

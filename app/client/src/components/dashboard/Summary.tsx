@@ -4,10 +4,9 @@ import SummaryItem from "./SummaryItem";
 import TokenSelect from "./select/TokenSelect";
 import { assetsItems } from "../../utils/constants";
 import { useAuth } from "../../contexts/AuthContext";
-import MetricsChart from "./chart/MetricsChart";
 
 const Summary: React.FC = () => {
-    const { tick, balances, marketcap } = useAuth();
+    const { marketcap, tick } = useAuth();
 
     const options = assetsItems.map((item) => ({
         label: item.icon,
@@ -16,18 +15,16 @@ const Summary: React.FC = () => {
 
     return (
         <div className="bg-dark rounded-lg p-5">
-            <div className="flex flex-wrap justify-start gap-5 mb-5">
-                {marketcap?.price &&
-                    <SummaryItem
-                        label="Total assets"
-                        icon="/assets/images/dashboard/totalAssets.svg"
-                        amount={`$${(Object.keys(balances).reduce((sum, key) => sum + balances[key], 0) * parseFloat(marketcap?.price)).toFixed(3)}`}
-                    />
-                }
+            <div className="flex flex-wrap justify-center gap-5 mb-5">
+                <SummaryItem
+                    label="Total assets"
+                    icon="/assets/images/dashboard/totalAssets.svg"
+                    amount={`$${marketcap?.marketcap}`}
+                />
                 <SummaryItem
                     label="Total deposits"
                     icon="/assets/images/dashboard/totalDeposit.svg"
-                    amount={`QU ${0}`}
+                    amount={`QU ${marketcap?.supply}`}
                 />
                 <SummaryItem
                     label="Tick"
@@ -36,8 +33,9 @@ const Summary: React.FC = () => {
                 />
             </div>
             <TokenSelect options={options} />
-
-            <MetricsChart />
+            <div>
+                <img src="/assets/images/dashboard/chat.svg" />
+            </div>
         </div>
     );
 };

@@ -1,35 +1,21 @@
-import { useNavigate } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 
 import { Button, Text } from "../../components/commons";
 import Container from "../Login/LoginContainer";
-import { useAuth } from "../../contexts/AuthContext";
-import { useEffect, useState } from "react";
 
 const BackupChars = () => {
-    const { seeds, setSeeds, recoverStatus, restoreAccount } = useAuth();
+    // const { login } = useAuth();
     const navigate = useNavigate();
 
-    const [backupSeeds, setBackupSeeds] = useState<string>("");
+    // const [password, setPassword] = useState<string>("");
 
-    const handleChangePassword = (e: React.ChangeEvent<HTMLInputElement>) => {
-        setBackupSeeds(e.target.value);
+    // const handleChangePassword = (e: React.ChangeEvent<HTMLInputElement>) => {
+    //     setPassword(e.target.value);
+    // };
+
+    const handleNext = () => {
+        // console.log(password);
     };
-
-
-    const handleNext = (e: React.MouseEvent<HTMLButtonElement>) => {
-        e.preventDefault();
-        if (recoverStatus) {
-            restoreAccount()
-        } else {
-            navigate('/login')
-        }
-    };
-
-    useEffect(() => {
-        if (recoverStatus) {
-            setSeeds(backupSeeds);
-        }
-    }, [backupSeeds])
 
     return (
         <Container>
@@ -55,7 +41,6 @@ const BackupChars = () => {
                         type="text"
                         placeholder="Input seeds you have just created"
                         className="bg-transparent border-b border-white pl-2.5 py-1 outline-none"
-                        onChange={handleChangePassword}
                     />
 
                     <div className="flex justify-center gap-8 lg:gap-20">
@@ -67,20 +52,18 @@ const BackupChars = () => {
                                 Back
                             </Button>
                         </a>
-                        <div
-                            // to={"/dashboard"}
+                        <Link
+                            to={"/dashboard"}
                             className="inline-block w-full lg:w-fit"
                         >
                             <Button
                                 variant="primary"
                                 size="wide"
                                 onClick={handleNext}
-                                disable={seeds != backupSeeds}
-                                className={seeds != backupSeeds ? "cursor-not-allowed" : "cursor-pointer"}
                             >
                                 Next
                             </Button>
-                        </div>
+                        </Link>
                     </div>
                 </div>
             </div>

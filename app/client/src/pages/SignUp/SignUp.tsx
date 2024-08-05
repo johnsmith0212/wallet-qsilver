@@ -3,20 +3,17 @@ import { Link } from "react-router-dom";
 import LoginContainer from "../Login/LoginContainer";
 import Input from "../../components/commons/Input";
 import Button from "../../components/commons/Button";
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { useAuth } from "../../contexts/AuthContext";
-import { Text } from "../../components/commons";
 
 const SignUp = () => {
-    const { toAccountOption, socket } = useAuth();
+    const { toAccountOption } = useAuth();
 
     const [password, setPassword] = useState<string>("");
     const [confirmPassword, setConfirmPassword] = useState<string>("");
-    const [isPasswordValid, setIsPasswordValid] = useState(true);
 
     const handlePasswordChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         setPassword(e.target.value);
-        socket?.emit('passwordAvail', { command: `checkavail ${e.target.value}`, flag: 'checkavail' });
     };
 
     const handleConfirmPasswordChange = (
@@ -25,18 +22,9 @@ const SignUp = () => {
         setConfirmPassword(e.target.value);
     };
 
-    const handleNext = (e: React.MouseEvent<HTMLButtonElement>) => {
-        e.preventDefault();
+    const handleNext = () => {
         toAccountOption(password, confirmPassword);
     };
-
-    useEffect(() => {
-        if (socket) {
-            socket.on("passwordAvail", (msg: boolean) => {
-                setIsPasswordValid(msg);
-            });
-        }
-    }, [socket]);
 
     return (
         <LoginContainer>
@@ -54,41 +42,18 @@ const SignUp = () => {
                 />
 
                 <div className="flex flex-col gap-12">
-                    <div>
-                        <Input
-                            label="Password"
-                            inputId="password"
-                            type="password"
-                            onChange={handlePasswordChange}
-                        />
-                        {!isPasswordValid && (
-                            <Text
-                                size="sm"
-                                weight="semibold"
-                                className="text-moonstoneBlue mt-4"
-                            >
-                                Password already exist.
-                            </Text>
-                        )}
-                    </div>
-
-                    <div>
-                        <Input
-                            label="Confirm Password"
-                            inputId="confirmPassword"
-                            type="password"
-                            onChange={handleConfirmPasswordChange}
-                        />
-                        {password != confirmPassword && (
-                            <Text
-                                size="sm"
-                                weight="semibold"
-                                className="text-moonstoneBlue mt-4"
-                            >
-                                Password does not match.
-                            </Text>
-                        )}
-                    </div>
+                    <Input
+                        label="Password"
+                        inputId="password"
+                        type="password"
+                        onChange={handlePasswordChange}
+                    />
+                    <Input
+                        label="Confirm Password"
+                        inputId="confirmPassword"
+                        type="password"
+                        onChange={handleConfirmPasswordChange}
+                    />
 
                     <div className="flex justify-center gap-8 lg:gap-20">
                         <Link
@@ -105,8 +70,6 @@ const SignUp = () => {
                                 variant="primary"
                                 size="wide"
                                 onClick={handleNext}
-                                disable={!isPasswordValid || password == '' || confirmPassword == '' || (password != confirmPassword)}
-                                className={!isPasswordValid || password == '' || confirmPassword == '' || (password != confirmPassword) ? 'cursor-not-allowed' : ''}
                             >
                                 Next
                             </Button>
