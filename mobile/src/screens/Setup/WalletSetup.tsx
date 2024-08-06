@@ -4,6 +4,7 @@ import { Image, VStack, Text, Box, Flex, Pressable } from "native-base";
 import { useColors } from "../../context/ColorContex";
 import Button from "../../components/UI/Button";
 import ButtonBox from "../../components/UI/ButtonBox";
+import ButtonBox from "../../components/UI/ButtonBox";
 
 interface IProps {}
 
@@ -50,9 +51,7 @@ const WalletSetup: React.FC<IProps> = () => {
           type="primary"
           onPress={() => navigation.navigate("Create")}
         ></Button>
-        <Pressable onPress={() => navigation.navigate("Login")}>
-          <Text textAlign={"center"}>Have Already Your Own Wallet?</Text>
-        </Pressable>
+
       </ButtonBox>
     </VStack>
   );

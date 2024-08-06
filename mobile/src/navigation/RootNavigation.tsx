@@ -6,9 +6,10 @@ import Login from "../screens/Login";
 import Create from "../screens/Setup/Create";
 import Backup from "../screens/Backup";
 import Confirm from "../screens/Confirm";
-import Restore from "../screens/Setup/Restore";
+import Restore from "../screens/Setup/Restore/Restore";
 import Splash from "../screens/Splash/Splash";
 import WalletSetup from "../screens/Setup/WalletSetup";
+import { useColors } from "../context/ColorContex";
 import { useColors } from "../context/ColorContex";
 
 type RootStackParamList = {
@@ -27,6 +28,8 @@ type RootStackParamList = {
 const Stack = createNativeStackNavigator<RootStackParamList>();
 
 const RootNavigation: React.FC = () => {
+  const { bgColor, textColor } = useColors();
+
   const { bgColor, textColor } = useColors();
 
   return (
