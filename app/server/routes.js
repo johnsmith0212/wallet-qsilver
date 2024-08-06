@@ -20,5 +20,8 @@ router.post('/history', mainController.history);
 router.post('/switch-network', mainController.switchNetwork);
 router.post('/tokens', mainController.tokens);
 router.post('/basic-info', mainController.basicInfo);
+router.post('/check-authenticated', mainController.checkAuthenticated);
+router.post('/trading-page-info', mainController.fetchTradingPageInfo);
+router.post('/ccall-v1request', mainController.ccallV1request);
 
 module.exports = router;
