@@ -11,10 +11,15 @@ import { useNavigate } from "react-router-dom";
 import { MODES, SERVER_URL, assetsItems, sideBarItems } from "../utils/constants";
 import { io, Socket } from "socket.io-client";
 import axios from "axios";
-import { AccountInfoInterface, MarketcapInterface, ModeProps, RichListInterface } from "../utils/interfaces";
-import { AccountInfoInterface, MarketcapInterface, ModeProps, RichListInterface } from "../utils/interfaces";
+import {
+    AccountInfoInterface,
+    MarketcapInterface,
+    ModeProps,
+    RichListInterface,
+} from "../utils/interfaces";
 import { toast } from "react-toastify";
 import { Loading } from "../components/commons";
+import { TokenOption } from "../components/commons/Select";
 
 interface AuthContextType {
     isAuthenticated: boolean;
@@ -30,7 +35,6 @@ interface AuthContextType {
     richlist: RichListInterface;
     currentAddress: string;
     tokenBalances: { [name: string]: Balances };
-
     totalBalance: string;
     recoverStatus: boolean;
     mode: ModeProps;
@@ -38,22 +42,17 @@ interface AuthContextType {
     currentToken: TokenOption;
     setCurrentToken: Dispatch<SetStateAction<TokenOption>>;
     setRecoverStatus: Dispatch<SetStateAction<boolean>>;
-
     setSeedType: Dispatch<SetStateAction<"55chars" | "24words">>;
     setMode: Dispatch<SetStateAction<ModeProps>>;
-    setCurrentAddress: Dispatch<SetStateAction<string>>;
-    setMode: Dispatch<SetStateAction<ModeProps>>;
+    setSeeds: Dispatch<SetStateAction<string | string[]>>;
     setCurrentAddress: Dispatch<SetStateAction<string>>;
     login: (password: string) => void;
     logout: () => void;
     create: () => void;
-    handleAddAccount: () => void;
+    restoreAccount: () => void;
     handleAddAccount: () => void;
     toAccountOption: (password: string, confirmPassword: string) => void;
     handleClickSideBar: (idx: number) => void;
-}
-interface Balances {
-    [address: string]: number;
 }
 interface Balances {
     [address: string]: number;
@@ -79,16 +78,19 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({
     const [isAuthenticated, setIsAuthenticated] = useState<boolean>(true);
     const [activeTabIdx, setActiveTabIdx] = useState(0);
     const [accountInfo, setAccountInfo] = useState<AccountInfoInterface>();
-
+    const [totalBalance, _] = useState<string>('0');
+    // const [totalBalance, setTotalBalance] = useState<string>('0');
 
     const [tick, setTick] = useState("");
     const [balances, setBalances] = useState<Balances>({});
-    const [tokenBalances, setTokenBalances] = useState<{ [name: string]: Balances }>({});
-    const [tokenBalances, setTokenBalances] = useState<{ [name: string]: Balances }>({});
+    const [tokenBalances, setTokenBalances] = useState<{
+        [name: string]: Balances;
+    }>({});
     const [marketcap, setMarketcap] = useState<MarketcapInterface>();
     const [tokens, setTokens] = useState<string[]>([]);
     const [richlist, setRichlist] = useState<RichListInterface>({});
-    const [currentAddress, setCurrentAddress] = useState<string>('');
+    const [currentAddress, setCurrentAddress] = useState<string>("");
+    const [recoverStatus, setRecoverStatus] = useState<boolean>(false);
 
     const tokenOptions: TokenOption[] = assetsItems.map((item) => ({
         label: item.icon,
@@ -101,64 +103,46 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({
 
     const [loading, setLoading] = useState<boolean>(true);
 
-    const [loading, setLoading] = useState<boolean>(true);
-
-    const login = (password: string) => {
+    const login = async (password: string) => {
+        if (password == "") {
+            return
+        }
+        setLoading(true);
         if (!password) {
             toast.error("Password Invalid");
             return;
         }
-
         let resp;
         try {
             resp = await axios.post(`${SERVER_URL}/api/login`, {
                 password,
                 socketUrl: mode.wsUrl,
-            })
+            });
+        } catch (error) { }
+
+        if (resp && resp.status == 200) {
+            setIsAuthenticated(resp.data.isAuthenticated);
+            setPassword(resp.data.password);
+            setAccountInfo(resp.data.accountInfo);
+            await fetchInfo();
+        } else {
+            toast.error("Couldn't log in");
+            setIsAuthenticated(false);
+        }
+        setLoading(false);
+    };
+
+    const logout = () => {
+        axios
+            .post(`${SERVER_URL}/api/logout`)
             .then((resp) => {
                 setIsAuthenticated(resp.data.isAuthenticated);
                 setPassword(resp.data.password);
-                setAccountInfo(resp.data.accountInfo)
-                fetchInfo()
+                setAccountInfo(resp.data.accountInfo);
             })
-            .catch((error) => {
-                console.log(error.response)
-                toast.error("Couldn't log in");
-                setIsAuthenticated(false);
-                setAccountInfo(resp.data.accountInfo)
-                fetchInfo()
-            })
-            .catch((error) => {
-                console.log(error.response)
-                toast.error("Couldn't log in");
-                setIsAuthenticated(false);
-            })
-            .finally(() => { });
-    };
-
-    const logout = () => {
-        axios.post(
-            `${SERVER_URL}/api/logout`
-        ).then((resp) => {
-            setIsAuthenticated(resp.data.isAuthenticated);
-            setPassword(resp.data.password);
-            setAccountInfo(resp.data.accountInfo)
-        }).catch(() => {
-            toast.error("Can't logout");
-        })
-            .finally(() => { });
-    };
-
-    const logout = () => {
-        axios.post(
-            `${SERVER_URL}/api/logout`
-        ).then((resp) => {
-            setIsAuthenticated(resp.data.isAuthenticated);
-            setPassword(resp.data.password);
-            setAccountInfo(resp.data.accountInfo)
-        }).catch(() => {
-            toast.error("Can't logout");
-        })
+            .catch(() => {
+                toast.error("Can't logout");
+            });
         // navigate("/login");
     };
 
@@ -177,7 +161,6 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({
         console.log(seedType);
 
         if (seedType == "55chars") passwordPrefix = "Q";
-
 
         axios
             .post(`${SERVER_URL}/api/ccall`, {
@@ -215,57 +198,67 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({
         if (index == -1) {
             index = accountInfo?.addresses.length;
         }
-        axios.post(
-            `${SERVER_URL}/api/add-account`,
-            {
-        axios.post(
-            `${SERVER_URL}/api/add-account`,
-            {
+        axios
+            .post(`${SERVER_URL}/api/add-account`, {
                 password: password,
-                index
-            }
-        ).then((resp) => {
-            setIsAuthenticated(resp.data.isAuthenticated);
-            setPassword(resp.data.password);
-            setAccountInfo(resp.data.accountInfo)
-            // fetchInfo()
-        }).catch(() => {
+                index,
+            })
+            .then((resp) => {
+                setIsAuthenticated(resp.data.isAuthenticated);
+                setPassword(resp.data.password);
+                setAccountInfo(resp.data.accountInfo);
+                // fetchInfo()
+            })
+            .catch(() => { });
+    };
 
-        })
+    const restoreAccount = () => {
+        axios
+            .post(`${SERVER_URL}/api/restore`, {
+                password,
+                seedType,
+                seeds
+            })
+            .then((resp) => {
+                console.log(resp.data);
+            })
+            .catch((error) => {
+                console.log(error.response);
+            })
+            .finally(() => {
+                navigate('/login');
+            })
     }
 
-    const fetchInfo = () => {
-        setLoading(true);
-        axios.post(
-            `${SERVER_URL}/api/fetch-user`
-        ).then((resp) => {
+    const fetchInfo = async () => {
+        let resp;
+        try {
+            resp = await axios.post(`${SERVER_URL}/api/fetch-user`);
+        } catch (error) { }
+
+        if (resp && resp.status == 200) {
             const data = resp.data;
             console.log(data, 'aaaaaaaaaaaaaaaaaaaaa')
             setIsAuthenticated(data.isAuthenticated);
             setPassword(data.password);
             setAccountInfo(data.accountInfo);
-            data.balances.map((item: [number, string]) => {
-            data.balances.map((item: [number, string]) => {
+            data.balances?.map((item: [number, string]) => {
                 if (data.accountInfo?.addresses[item[0]])
-                    setBalances((prev) => { return { ...prev, [data.accountInfo?.addresses[item[0]]]: parseFloat(item[1]) } });
-                    setBalances((prev) => { return { ...prev, [data.accountInfo?.addresses[item[0]]]: parseFloat(item[1]) } });
+                    setBalances((prev) => {
+                        return {
+                            ...prev,
+                            [data.accountInfo?.addresses[item[0]]]: parseFloat(
+                                item[1]
+                            ),
+                        };
+                    });
             });
             setMarketcap(data.marketcap);
-            setTokens(['QU', ...data.tokens]);
-            setTokens(['QU', ...data.tokens]);
+            setTokens(["QU", ...(data?.tokens || [])]);
             setRichlist(data.richlist);
-        }).catch(() => {
-
-        }).finally(() => {
-            setLoading(false);
-        })
-    }
-        }).catch(() => {
-
-        }).finally(() => {
-            setLoading(false);
-        })
-    }
+        } else {
+        }
+    };
 
     useEffect(() => {
         const newSocket = io(wsUrl);
@@ -274,21 +267,26 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({
         newSocket.on("live", (data) => {
             if (data.command == "CurrentTickInfo") {
                 setTick(data.tick);
-                setTick(data.tick);
             } else if (data.command == "EntityInfo") {
                 console.log(data.balance, 1);
                 if (data.address)
-                    setBalances((prev) => { return { ...prev, [data.address]: parseFloat(data.balance) } });
-                    setBalances((prev) => { return { ...prev, [data.address]: parseFloat(data.balance) } });
+                    setBalances((prev) => {
+                        return {
+                            ...prev,
+                            [data.address]: parseFloat(data.balance),
+                        };
+                    });
             } else if (data.balances) {
                 data.balances.map((item: [number, string]) => {
                     if (data[0])
-                        setBalances((prev) => { return { ...prev, [data[0]]: parseFloat(item[1]) } });
-                        setBalances((prev) => { return { ...prev, [data[0]]: parseFloat(item[1]) } });
+                        setBalances((prev) => {
+                            return { ...prev, [data[0]]: parseFloat(item[1]) };
+                        });
                 });
             } else if (data.richlist) {
-                setRichlist((prev) => { return { ...prev, [data.name]: data.richlist } })
-                setRichlist((prev) => { return { ...prev, [data.name]: data.richlist } })
+                setRichlist((prev) => {
+                    return { ...prev, [data.name]: data.richlist };
+                });
             } else if (data.marketcap) {
                 console.log(data.marketcap, 4);
             }
@@ -300,21 +298,48 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({
     }, [wsUrl]);
 
     useEffect(() => {
-        setTokenBalances((prev) => { return { ...prev, 'QU': balances } })
-    }, [balances])
-        setTokenBalances((prev) => { return { ...prev, 'QU': balances } })
-    }, [balances])
+        setTokenBalances((prev) => {
+            return { ...prev, QU: balances };
+        });
+    }, [balances]);
 
     useEffect(() => {
-        if (accountInfo)
-            setCurrentAddress(accountInfo.addresses[0])
-    }, [accountInfo])
-        if (accountInfo)
-            setCurrentAddress(accountInfo.addresses[0])
-    }, [accountInfo])
+        if (accountInfo) setCurrentAddress(accountInfo.addresses[0]);
+    }, [accountInfo]);
 
     useEffect(() => {
+        async function init() {
+            await login(password);
+        }
+        init();
+    }, [mode]);
 
+    useEffect(() => {
+        async function init() {
+            setLoading(true);
+            await fetchInfo();
+            setLoading(false);
+        }
+        if (isAuthenticated)
+            init();
+    }, [isAuthenticated]);
+
+    useEffect(() => {
+        async function checkAuthenticated() {
+            setLoading(true);
+            try {
+                const resp = await axios
+                    .post(`${SERVER_URL}/api/check-authenticated`, () => {
+                    })
+                if (resp.status == 200) {
+                    setIsAuthenticated(true)
+                }
+            } catch (error) {
+
+            }
+            setLoading(false);
+        }
+        checkAuthenticated();
     }, [])
 
     return (
@@ -331,20 +356,16 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({
                 richlist,
                 tick,
                 balances,
+                totalBalance,
+                mode,
                 tokenBalances,
                 currentAddress,
-
-                handleAddAccount,
-                setMode,
-                seeds,
-                marketcap,
-                tokens,
-                accountInfo,
-                richlist,
-                tick,
-                balances,
-                tokenBalances,
-                currentAddress,
+                recoverStatus,
+                currentToken,
+                tokenOptions,
+                setCurrentToken,
+                setRecoverStatus,
+                setSeeds,
                 handleAddAccount,
                 setMode,
                 setSeedType,
@@ -357,14 +378,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({
                 setCurrentAddress,
             }}
         >
-            {loading ?
-                <Loading /> :
-                children
-            }
-            {loading ?
-                <Loading /> :
-                children
-            }
+            {loading ? <Loading /> : children}
         </AuthContext.Provider>
     );
 };

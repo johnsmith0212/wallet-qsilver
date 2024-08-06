@@ -1,13 +1,16 @@
 type InnerContainerProps = {
-    children: React.ReactNode
-    gapVariant?: "base" | "forms" | "sm",
-    paddingVariant?: "base" | "lists"
-}
+    children: React.ReactNode;
+    gapVariant?: "base" | "forms" | "sm";
+    paddingVariant?: "base" | "lists";
+};
 
-const InnerContainer = ({ children, gapVariant = "base", paddingVariant = "base"}: InnerContainerProps) => {
+const InnerContainer = ({
+    children,
+    gapVariant = "base",
+    paddingVariant = "base",
+}: InnerContainerProps) => {
     const gaps = {
         sm: "gap-4",
-
         base: "gap-8",
         settings: "gap-12",
         forms: "gap-16",
@@ -23,7 +26,7 @@ const InnerContainer = ({ children, gapVariant = "base", paddingVariant = "base"
         >
             {children}
         </div>
-    )
+    );
 };
 
 export default InnerContainer;
