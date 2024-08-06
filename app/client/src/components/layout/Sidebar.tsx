@@ -1,8 +1,11 @@
 import { sideBarItems } from "../../utils/constants";
 import SidebarItem from "../dashboard/SidebarItem";
 import { useAuth } from "../../contexts/AuthContext";
+import { Link } from "react-router-dom";
+import { Text } from "../../components/commons";
 
 const Sidebar = () => {
+    const { logout, activeTabIdx, handleClickSideBar } = useAuth();
     const { logout, activeTabIdx, handleClickSideBar } = useAuth();
 
     return (
@@ -17,15 +20,20 @@ const Sidebar = () => {
                             link={item.link}
                             active={activeTabIdx === idx ? true : false}
                             onClick={() => {
-                                if (item.link === "/login") {
-                                    logout();
-                                    return;
-                                }
                                 handleClickSideBar(idx);
                             }}
                         />
                     );
                 })}
+                <Link
+                    to={"/login"}
+                    className="absolute bottom-10 left-5 flex gap-5"
+                >
+                    <img src="assets/images/ui/logout.svg" />
+                    <Text weight="medium" size="lg" onClick={logout}>
+                        Log out
+                    </Text>
+                </Link>
             </div>
         </>
     );

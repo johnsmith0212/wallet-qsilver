@@ -1,9 +1,9 @@
-import { useAuth } from "../../../contexts/AuthContext";
-import { Text } from "../../commons";
+
 import Input from "../../commons/Input";
-import TokenSubmitModal from "./TokenSubmitModal";
 
 type TokenFormsModalProps = {
+
+
     tokenName: string;
     amount: string;
     setAmount: React.Dispatch<React.SetStateAction<string>>;
@@ -39,16 +39,10 @@ const TokenFormsModal = ({
                             onChange={(e) => setAddressToSend(e.target.value)}
                         />
 
-                        <Input
-                            type="number"
-                            placeholder="Amount"
-                            label="Amount"
-                            inputId="amount"
-                            inputStyle="modal"
-                            value={amount}
-                            onChange={(e) => setAmount(e.target.value)}
-                        />
-                    </div>
+
+                <Input type='number' placeholder='Amount' label='Amount' inputId='amount' inputStyle='modal'/>
+            </div>
+
 
                     <div className="space-y-1.5">
                         {/* <div className="flex justify-between">
@@ -102,9 +96,9 @@ const TokenFormsModal = ({
 
                     <Text className="text-center break-all">{addressToSend}</Text>
                 </div>
-            )}
+            </div>
         </div>
-    );
-};
+    )
+}
 
 export default TokenFormsModal;

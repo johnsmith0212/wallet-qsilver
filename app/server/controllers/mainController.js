@@ -25,6 +25,7 @@ exports.login = async (req, res) => {
     let liveSocket = socketManager.initLiveSocket(socketUrl);
     liveSocketController(liveSocket)
     await delay(2000);
+    await delay(2000);
     let realPassword;
     stateManager.init();
     const resultFor24words = await wasmManager.ccall({ command: `checkavail ${password}`, flag: 'login' });
@@ -121,13 +122,9 @@ exports.fetchUser = async (req, res) => {
     const richlist = {};
     const qurichlist = await socketSync('richlist');
     richlist[qurichlist.name] = qurichlist.richlist;
-    try {
-        for (let idx = 0; idx < tokens.tokens.length; idx++) {
-            const richlistResult = await socketSync(`richlist.${tokens.tokens[idx]}`)
-            richlist[richlistResult.name] = richlistResult.richlist;
-        }
-    } catch (error) {
-
+    for (let idx = 0; idx < tokens.tokens.length; idx++) {
+        const richlistResult = await socketSync(`richlist.${tokens.tokens[idx]}`)
+        richlist[richlistResult.name] = richlistResult.richlist;
     }
 
     res.send({ ...userState, ...{ balances: balances.balances, marketcap, tokens: tokens.tokens, richlist } });

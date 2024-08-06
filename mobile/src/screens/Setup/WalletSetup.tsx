@@ -38,6 +38,27 @@ const WalletSetup: React.FC<IProps> = () => {
         </Text>
       </VStack>
       <ButtonBox>
+      justifyContent="end"
+      justifyItems="center"
+    >
+      <VStack
+        space={10}
+        alignItems="center"
+        flex={1}
+        justifyContent="center"
+        justifyItems="center"
+      >
+        <Image
+          source={require("../../../assets/images/01/04.png")}
+          style={{ width: 214, height: 220 }}
+          resizeMode="contain"
+          alt="Splash Image"
+        />
+        <Text color={textColor} fontSize={40}>
+          Wallet Setup
+        </Text>
+      </VStack>
+      <ButtonBox>
         <Button
           title="Import Using Seed Phrase"
           type="disabled"
@@ -50,9 +71,6 @@ const WalletSetup: React.FC<IProps> = () => {
           type="primary"
           onPress={() => navigation.navigate("Create")}
         ></Button>
-        <Pressable onPress={() => navigation.navigate("Login")}>
-          <Text textAlign={"center"}>Have Already Your Own Wallet?</Text>
-        </Pressable>
       </ButtonBox>
     </VStack>
   );
