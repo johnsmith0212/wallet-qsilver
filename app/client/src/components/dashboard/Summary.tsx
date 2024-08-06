@@ -11,7 +11,7 @@ const Summary: React.FC = () => {
     const options = assetsItems.map((item) => ({
         label: item.icon,
         value: item.name,
-    }));
+    }))
 
     return (
         <div className="bg-dark rounded-lg p-5">
@@ -28,11 +28,10 @@ const Summary: React.FC = () => {
                 />
             </div>
             <TokenSelect options={options} />
-            <div>
-                <img src="/assets/images/dashboard/chat.svg" />
-            </div>
-        </div>
-    );
-};
 
-export default Summary;
+            <MetricsChart />
+        </div>
+    )
+}
+
+export default Summary

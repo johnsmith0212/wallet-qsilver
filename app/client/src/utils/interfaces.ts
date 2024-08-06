@@ -4,11 +4,6 @@ type ModeProps = {
     // add some more if need
 }
 
-type SelectOption = {
-    name: string;
-    iconUrl: string;
-};
-
 type SidebarItemProps = {
     icon: string;
     label: string;

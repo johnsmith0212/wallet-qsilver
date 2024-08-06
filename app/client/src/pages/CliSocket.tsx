@@ -1,8 +1,7 @@
 import React, { useEffect, useState } from "react";
 import axios from "axios";
 import { SERVER_URL } from "../utils/constants";
-import { useSocket } from "../context/SocketContext";
-import { useNetwork } from "../context/NetworkContext";
+import { useAuth } from "../contexts/AuthContext";
 
 const ChildComponent: React.FC<{ value: string }> = ({ value }) => {
     return <div>{value}</div>;
@@ -11,8 +10,7 @@ const ChildComponent: React.FC<{ value: string }> = ({ value }) => {
 const CliSocket: React.FC = () => {
 
     const [wasmCommand, setWasmCommand] = useState<string>("");
-    const socket = useSocket();
-    const network = useNetwork();
+    const { socket, mode } = useAuth();
     const [result, setResult] = useState<string>("");
     const [wasmChildren, setWasmChildren] = useState<Array<JSX.Element>>([]);
 
@@ -61,7 +59,7 @@ const CliSocket: React.FC = () => {
             `${SERVER_URL}/api/socket`,
             {
                 command: socketCommand,
-                socketUrl: network.config.wssUrl,
+                socketUrl: mode.wsUrl,
                 flag: 'socket',
             }
         ).then((resp) => {
@@ -89,7 +87,7 @@ const CliSocket: React.FC = () => {
 
     return (
         <div className="flex gap-2">
-            <div className="my-5 p-5 bg-white rounded-lg shadow-md top-2 w-full max-w-[50%] max-h-[100vh]">
+            <div className="my-5 p-5 bg-white text-black rounded-lg shadow-md top-2 w-full max-w-[50%] max-h-[100vh]">
                 <div className="mb-5 flex gap-2.5 items-center">
                     <h2>WASM</h2>
                     <input className="p-2.5 border border-gray-300 rounded w-full" onChange={handleWasmCommand} />
@@ -101,7 +99,7 @@ const CliSocket: React.FC = () => {
                     {wasmChildren.map(child => child)}
                 </div>
             </div>
-            <div className="my-5 p-5 bg-white rounded-lg shadow-md top-2 w-full max-w-[50%] max-h-[100vh]">
+            <div className="my-5 p-5 bg-white text-black rounded-lg shadow-md top-2 w-full max-w-[50%] max-h-[100vh]">
                 <div className="mb-5 flex gap-2.5 items-center">
                     <h2>Socket</h2>
                     <input className="p-2.5 border border-gray-300 rounded w-full" onChange={handleSocketCommand} />

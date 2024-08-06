@@ -2,7 +2,7 @@ import { Pagination, PaginationItem } from "@mui/material";
 
 import Button from "../../components/commons/Button";
 import Title from "../../components/commons/Title";
-import Layout from "../../components/layout";
+import Layout from "../../components/layout"
 import InnerContainer from "../../components/layout/InnerContainer";
 import MainContent from "../../components/layout/MainContent";
 import AccountSummary from "./AccountSummary";
@@ -14,8 +14,10 @@ type DataType = {
     address: string;
     balance: number;
 }
+}
 
 const Accounts = () => {
+
 
     const { accountInfo, balances, handleAddAccount } = useAuth();
     const [data, setData] = useState<DataType[]>([]);
@@ -142,7 +144,7 @@ const Accounts = () => {
                 </MainContent>
             </Layout>
         </>
-    );
-};
+    )
+}
 
 export default Accounts;

@@ -6,7 +6,6 @@ type InputProps = {
     inputStyle?: "forms" | "base" | "modal" | "custom";
     gapVariant?: "strech" | "base" | "xs";
     backgroundVariant?: "base" | "off-white" | "transparent";
-    value?: string | number;
     onChange?: (e: React.ChangeEvent<HTMLInputElement>) => void;
 };
 
@@ -18,8 +17,7 @@ const Input = ({
     gapVariant = "base",
     backgroundVariant = "base",
     placeholder,
-    value,
-    onChange,
+    onChange
 }: InputProps) => {
     const backgrounds = {
         base: "bg-dark-input",
@@ -27,7 +25,7 @@ const Input = ({
         transparent: "bg-transparent",
     };
     const gaps = {
-        base: "gap-12",
+        base: "gap-5",
         strech: "gap-3",
         xs: "gap-1",
     };
@@ -40,7 +38,7 @@ const Input = ({
         },
         base: {
             input: `${backgrounds["base"]} max-w-xl h-10 px-3 outline-none rounded-[5px] font-Inter`,
-            label: "text-lg",
+            label: "font-Montserrat font-semibold text-lg",
             outerContainer: `flex flex-col ${gaps[gapVariant]}`,
         },
         modal: {
@@ -68,7 +66,6 @@ const Input = ({
                 className={style.input}
                 placeholder={placeholder ? placeholder : ""}
                 min={0}
-                value={value}
                 onChange={onChange}
             />
         </div>

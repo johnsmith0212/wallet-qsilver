@@ -1,6 +1,8 @@
 import { sideBarItems } from "../../utils/constants";
 import SidebarItem from "../dashboard/SidebarItem";
 import { useAuth } from "../../contexts/AuthContext";
+import { Link } from "react-router-dom";
+import { Text } from "../../components/commons";
 
 const Sidebar = () => {
     const { logout, activeTabIdx, handleClickSideBar } = useAuth();
@@ -18,10 +20,6 @@ const Sidebar = () => {
                             link={item.link}
                             active={activeTabIdx === idx ? true : false}
                             onClick={() => {
-                                if (item.link === "/login") {
-                                    logout();
-                                    return;
-                                }
                                 handleClickSideBar(idx);
                             }}
                         />

@@ -1,6 +1,6 @@
 import { useAuth } from "../../contexts/AuthContext";
 import { handleCopy } from "../../utils/helper";
-import { Text } from "../commons";
+
 import SwitchButton from "../dashboard/SwitchButton";
 
 const Navbar = () => {
@@ -11,6 +11,7 @@ const Navbar = () => {
                 <div className="w-[230px]">
                     <img src="/assets/images/logo.svg" />
                 </div>
+
 
                 <div className="flex justify-between  items-center flex-wrap gap-1">
                     <span

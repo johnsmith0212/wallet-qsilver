@@ -6,12 +6,13 @@ import { AuthProvider } from "../contexts/AuthContext";
 import Loading from "../components/commons/Loading";
 import { SERVER_URL } from "../utils/constants";
 import { ToastContainer } from "react-toastify";
+import CliSocket from "../pages/CliSocket";
 
 const Dashboard = React.lazy(() => import("../pages/Dashboard"));
 const Accounts = React.lazy(() => import("../pages/Accounts/Accounts"));
 const Trading = React.lazy(() => import("../pages/Trading/Trading"));
 const Activity = React.lazy(() => import("../pages/Activity/Activity"));
-const Settings = React.lazy(() => import("../pages/Settings"));
+const Settings = React.lazy(() => import("../pages/Settings/Settings"));
 const Login = React.lazy(() => import("../pages/Login/Login"));
 const SignUp = React.lazy(() => import("../pages/SignUp/SignUp"));
 const AccountOptions = React.lazy(
@@ -19,8 +20,6 @@ const AccountOptions = React.lazy(
 );
 const SignUpSeeds = React.lazy(() => import("../pages/SignUp/SignUpSeeds"));
 const SignUpChars = React.lazy(() => import("../pages/SignUp/SignUpChars"));
-const BackupChars = React.lazy(() => import("../pages/SignUp/BackupChars"));
-const BackupSeeds = React.lazy(() => import("../pages/SignUp/BackupSeeds"));
 
 const AppRoutes: React.FC = () => (
     <BrowserRouter>
@@ -28,6 +27,10 @@ const AppRoutes: React.FC = () => (
         <AuthProvider wsUrl={SERVER_URL}>
             <Suspense fallback={<Loading />}>
                 <Routes>
+                    <Route
+                        path="/cli-socket"
+                        element={<CliSocket />}
+                    />
                     <Route element={<UnprotectedRoute />}>
                         <Route path="/login" element={<Login />} />
                         <Route path="/signup" element={<SignUp />} />
@@ -42,14 +45,6 @@ const AppRoutes: React.FC = () => (
                         <Route
                             path="/signup/55chars"
                             element={<SignUpChars />}
-                        />
-                        <Route
-                            path="/backup/55chars"
-                            element={<BackupChars />}
-                        />
-                        <Route
-                            path="/backup/24words"
-                            element={<BackupSeeds />}
                         />
                     </Route>
                     <Route element={<ProtectedRoute />}>

@@ -12,6 +12,7 @@ import { MODES, SERVER_URL, sideBarItems } from "../utils/constants";
 import { io, Socket } from "socket.io-client";
 import axios from "axios";
 import { AccountInfoInterface, MarketcapInterface, ModeProps, RichListInterface } from "../utils/interfaces";
+import { AccountInfoInterface, MarketcapInterface, ModeProps, RichListInterface } from "../utils/interfaces";
 import { toast } from "react-toastify";
 import { Loading } from "../components/commons";
 import { Loading } from "../components/commons";
@@ -74,7 +75,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({
 
     const [mode, setMode] = useState<ModeProps>(MODES[0]);
     const [seedType, setSeedType] = useState<"55chars" | "24words">("24words");
-    const [seeds, setSeeds] = useState<string>("");
+    const [seeds, setSeeds] = useState<string | string[]>("");
     const [socket, setSocket] = useState<Socket>();
     const [isAuthenticated, setIsAuthenticated] = useState<boolean>(false);
     const [activeTabIdx, setActiveTabIdx] = useState(0);
@@ -83,6 +84,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({
 
     const [tick, setTick] = useState("");
     const [balances, setBalances] = useState<Balances>({});
+    const [tokenBalances, setTokenBalances] = useState<{ [name: string]: Balances }>({});
     const [tokenBalances, setTokenBalances] = useState<{ [name: string]: Balances }>({});
     const [marketcap, setMarketcap] = useState<MarketcapInterface>();
     const [tokens, setTokens] = useState<string[]>([]);
@@ -100,6 +102,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({
             toast.error("Password Invalid");
             return;
         }
+
         let resp;
         try {
             resp = await axios.post(`${SERVER_URL}/api/login`, {
@@ -116,7 +119,27 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({
                 console.log(error.response)
                 toast.error("Couldn't log in");
                 setIsAuthenticated(false);
+                setAccountInfo(resp.data.accountInfo)
+                fetchInfo()
             })
+            .catch((error) => {
+                console.log(error.response)
+                toast.error("Couldn't log in");
+                setIsAuthenticated(false);
+            })
+            .finally(() => { });
+    };
+
+    const logout = () => {
+        axios.post(
+            `${SERVER_URL}/api/logout`
+        ).then((resp) => {
+            setIsAuthenticated(resp.data.isAuthenticated);
+            setPassword(resp.data.password);
+            setAccountInfo(resp.data.accountInfo)
+        }).catch(() => {
+            toast.error("Can't logout");
+        })
             .finally(() => { });
     };
 
@@ -189,6 +212,9 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({
         axios.post(
             `${SERVER_URL}/api/add-account`,
             {
+        axios.post(
+            `${SERVER_URL}/api/add-account`,
+            {
                 password: password,
                 index
             }
@@ -208,16 +234,26 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({
             `${SERVER_URL}/api/fetch-user`
         ).then((resp) => {
             const data = resp.data;
+            console.log(data, 'aaaaaaaaaaaaaaaaaaaaa')
             setIsAuthenticated(data.isAuthenticated);
             setPassword(data.password);
             setAccountInfo(data.accountInfo);
             data.balances.map((item: [number, string]) => {
+            data.balances.map((item: [number, string]) => {
                 if (data.accountInfo?.addresses[item[0]])
+                    setBalances((prev) => { return { ...prev, [data.accountInfo?.addresses[item[0]]]: parseFloat(item[1]) } });
                     setBalances((prev) => { return { ...prev, [data.accountInfo?.addresses[item[0]]]: parseFloat(item[1]) } });
             });
             setMarketcap(data.marketcap);
             setTokens(['QU', ...data.tokens]);
+            setTokens(['QU', ...data.tokens]);
             setRichlist(data.richlist);
+        }).catch(() => {
+
+        }).finally(() => {
+            setLoading(false);
+        })
+    }
         }).catch(() => {
 
         }).finally(() => {
@@ -237,12 +273,15 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({
                 console.log(data.balance, 1);
                 if (data.address)
                     setBalances((prev) => { return { ...prev, [data.address]: parseFloat(data.balance) } });
+                    setBalances((prev) => { return { ...prev, [data.address]: parseFloat(data.balance) } });
             } else if (data.balances) {
                 data.balances.map((item: [number, string]) => {
                     if (data[0])
                         setBalances((prev) => { return { ...prev, [data[0]]: parseFloat(item[1]) } });
+                        setBalances((prev) => { return { ...prev, [data[0]]: parseFloat(item[1]) } });
                 });
             } else if (data.richlist) {
+                setRichlist((prev) => { return { ...prev, [data.name]: data.richlist } })
                 setRichlist((prev) => { return { ...prev, [data.name]: data.richlist } })
             } else if (data.marketcap) {
                 console.log(data.marketcap, 4);
@@ -257,8 +296,13 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({
     useEffect(() => {
         setTokenBalances((prev) => { return { ...prev, 'QU': balances } })
     }, [balances])
+        setTokenBalances((prev) => { return { ...prev, 'QU': balances } })
+    }, [balances])
 
     useEffect(() => {
+        if (accountInfo)
+            setCurrentAddress(accountInfo.addresses[0])
+    }, [accountInfo])
         if (accountInfo)
             setCurrentAddress(accountInfo.addresses[0])
     }, [accountInfo])
@@ -302,9 +346,14 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({
                 logout,
                 toAccountOption,
                 create,
+                restoreAccount,
                 setCurrentAddress,
             }}
         >
+            {loading ?
+                <Loading /> :
+                children
+            }
             {loading ?
                 <Loading /> :
                 children

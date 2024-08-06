@@ -1,6 +1,6 @@
 import React from "react";
 import { useNavigation } from "@react-navigation/native";
-import { Image, VStack, Text, Box, Flex } from "native-base";
+import { Image, VStack, Text, Box, Flex, Pressable } from "native-base";
 import { useColors } from "../../context/ColorContex";
 import Button from "../../components/UI/Button";
 import ButtonBox from "../../components/UI/ButtonBox";
@@ -17,6 +17,27 @@ const WalletSetup: React.FC<IProps> = () => {
       alignItems="center"
       bgColor={bgColor}
       flex={1}
+      justifyContent="end"
+      justifyItems="center"
+    >
+      <VStack
+        space={10}
+        alignItems="center"
+        flex={1}
+        justifyContent="center"
+        justifyItems="center"
+      >
+        <Image
+          source={require("../../../assets/images/01/04.png")}
+          style={{ width: 214, height: 220 }}
+          resizeMode="contain"
+          alt="Splash Image"
+        />
+        <Text color={textColor} fontSize={40}>
+          Wallet Setup
+        </Text>
+      </VStack>
+      <ButtonBox>
       justifyContent="end"
       justifyItems="center"
     >
