@@ -321,3 +321,24 @@ exports.basicInfo = async (req, res) => {
 
     res.send({ balances: balances.balances, marketcap, tokens: tokens.tokens, richlist });
 }
+
+exports.checkAuthenticated = async (req, res) => {
+    const isAuthenticated = stateManager.getUserState().isAuthenticated;
+    if (isAuthenticated) {
+        res.status(200).send(true);
+    } else {
+        res.status(402).send(false);
+    }
+}
+
+exports.fetchTradingPageInfo = async (req, res) => {
+    const { token } = req.body;
+    try {
+        const orders = await socketSync(`orders ${token}`);
+        res.status(200).send(orders);
+        return;
+    } catch (error) {
+        res.status(400).send('failed');
+        return;
+    }
+}
