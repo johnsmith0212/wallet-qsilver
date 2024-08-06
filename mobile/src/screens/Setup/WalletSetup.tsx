@@ -1,8 +1,10 @@
 import React from "react";
 import { useNavigation } from "@react-navigation/native";
-import { Image, VStack, Text, Box, Flex } from "native-base";
+import { TouchableOpacity } from "react-native";
+import { Image, VStack, Text } from "native-base";
 import { useColors } from "../../context/ColorContex";
 import Button from "../../components/UI/Button";
+import ButtonBox from "../../components/UI/ButtonBox";
 import ButtonBox from "../../components/UI/ButtonBox";
 
 interface IProps {}

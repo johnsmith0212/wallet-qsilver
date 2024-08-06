@@ -3,6 +3,7 @@ import { Input as NInput, IInputProps, Pressable, Icon } from "native-base";
 import tw from "tailwind-react-native-classnames";
 import { useColors } from "../../context/ColorContex";
 import { MaterialIcons } from "@expo/vector-icons";
+import { TouchableOpacity } from "react-native";
 
 interface InputProps extends IInputProps {
   placeholder: string;
