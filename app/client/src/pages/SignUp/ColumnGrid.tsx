@@ -25,4 +25,4 @@ const ColumnGrid = () => {
   );
 };
 
-export default ColumnGrid
+export default ColumnGrid;

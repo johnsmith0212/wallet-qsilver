@@ -1,6 +1,9 @@
 import React from "react";
 import { Input as NInput, IInputProps, Pressable, Icon } from "native-base";
+import { Input as NInput, IInputProps, Pressable, Icon } from "native-base";
 import tw from "tailwind-react-native-classnames";
+import { useColors } from "../../context/ColorContex";
+import { MaterialIcons } from "@expo/vector-icons";
 import { useColors } from "../../context/ColorContex";
 import { MaterialIcons } from "@expo/vector-icons";
 
@@ -17,6 +20,9 @@ const Input: React.FC<InputProps> = ({
   type,
   ...props
 }) => {
+  const { textColor, gray } = useColors();
+  const [show, setShow] = React.useState(type == "text");
+
   const { textColor, gray } = useColors();
   const [show, setShow] = React.useState(type == "text");
 

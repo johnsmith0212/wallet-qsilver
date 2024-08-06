@@ -1,4 +1,4 @@
-import React from 'react'
+import React from "react";
 
 import SummaryItem from './SummaryItem'
 import TokenSelect from './select/TokenSelect'
@@ -11,7 +11,7 @@ const Summary: React.FC = () => {
     const options = assetsItems.map((item) => ({
         label: item.icon,
         value: item.name,
-    }))
+    }));
 
     return (
         <div className="bg-dark rounded-lg p-5">
@@ -32,7 +32,7 @@ const Summary: React.FC = () => {
                 <img src="/assets/images/dashboard/chat.svg" />
             </div>
         </div>
-    )
-}
+    );
+};
 
-export default Summary
+export default Summary;

@@ -25,6 +25,7 @@ exports.login = async (req, res) => {
     let liveSocket = socketManager.initLiveSocket(socketUrl);
     liveSocketController(liveSocket)
     await delay(2000);
+    await delay(2000);
     let realPassword;
     stateManager.init();
     const resultFor24words = await wasmManager.ccall({ command: `checkavail ${password}`, flag: 'login' });

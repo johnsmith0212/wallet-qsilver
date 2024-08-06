@@ -1,5 +1,6 @@
 import { useAuth } from "../../contexts/AuthContext";
 import { handleCopy } from "../../utils/helper";
+import { Text } from "../commons";
 import SwitchButton from "../dashboard/SwitchButton";
 
 const Navbar = () => {

@@ -14,6 +14,7 @@ import axios from "axios";
 import { AccountInfoInterface, MarketcapInterface, ModeProps, RichListInterface } from "../utils/interfaces";
 import { toast } from "react-toastify";
 import { Loading } from "../components/commons";
+import { Loading } from "../components/commons";
 
 interface AuthContextType {
     isAuthenticated: boolean;
@@ -29,15 +30,30 @@ interface AuthContextType {
     richlist: RichListInterface;
     currentAddress: string;
     tokenBalances: { [name: string]: Balances };
+    seeds: string | string[];
+    accountInfo: AccountInfoInterface | undefined;
+    marketcap: MarketcapInterface | undefined;
+    tokens: string[];
+    tick: string;
+    balances: Balances;
+    richlist: RichListInterface;
+    currentAddress: string;
+    tokenBalances: { [name: string]: Balances };
     setSeedType: Dispatch<SetStateAction<"55chars" | "24words">>;
+    setMode: Dispatch<SetStateAction<ModeProps>>;
+    setCurrentAddress: Dispatch<SetStateAction<string>>;
     setMode: Dispatch<SetStateAction<ModeProps>>;
     setCurrentAddress: Dispatch<SetStateAction<string>>;
     login: (password: string) => void;
     logout: () => void;
     create: () => void;
     handleAddAccount: () => void;
+    handleAddAccount: () => void;
     toAccountOption: (password: string, confirmPassword: string) => void;
     handleClickSideBar: (idx: number) => void;
+}
+interface Balances {
+    [address: string]: number;
 }
 interface Balances {
     [address: string]: number;
@@ -63,6 +79,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({
     const [isAuthenticated, setIsAuthenticated] = useState<boolean>(false);
     const [activeTabIdx, setActiveTabIdx] = useState(0);
     const [accountInfo, setAccountInfo] = useState<AccountInfoInterface>();
+    const [accountInfo, setAccountInfo] = useState<AccountInfoInterface>();
 
     const [tick, setTick] = useState("");
     const [balances, setBalances] = useState<Balances>({});
@@ -76,14 +93,16 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({
 
     const [loading, setLoading] = useState<boolean>(true);
 
+    const [loading, setLoading] = useState<boolean>(true);
+
     const login = (password: string) => {
         if (!password) {
             toast.error("Password Invalid");
             return;
         }
-
-        axios
-            .post(`${SERVER_URL}/api/login`, {
+        let resp;
+        try {
+            resp = await axios.post(`${SERVER_URL}/api/login`, {
                 password,
                 socketUrl: mode.wsUrl,
             })
@@ -129,6 +148,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({
         console.log(seedType);
 
         if (seedType == "55chars") passwordPrefix = "Q";
+
 
         axios
             .post(`${SERVER_URL}/api/ccall`, {
@@ -212,6 +232,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({
         newSocket.on("live", (data) => {
             if (data.command == "CurrentTickInfo") {
                 setTick(data.tick);
+                setTick(data.tick);
             } else if (data.command == "EntityInfo") {
                 console.log(data.balance, 1);
                 if (data.address)
@@ -253,6 +274,17 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({
                 isAuthenticated,
                 activeTabIdx,
                 seedType,
+                seeds,
+                marketcap,
+                tokens,
+                accountInfo,
+                richlist,
+                tick,
+                balances,
+                tokenBalances,
+                currentAddress,
+                handleAddAccount,
+                setMode,
                 seeds,
                 marketcap,
                 tokens,

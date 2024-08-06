@@ -2,7 +2,7 @@ import { Pagination, PaginationItem } from "@mui/material";
 
 import Button from "../../components/commons/Button";
 import Title from "../../components/commons/Title";
-import Layout from "../../components/layout"
+import Layout from "../../components/layout";
 import InnerContainer from "../../components/layout/InnerContainer";
 import MainContent from "../../components/layout/MainContent";
 import AccountSummary from "./AccountSummary";
@@ -102,7 +102,12 @@ const Accounts = () => {
     //     },
     // ]
 
-    const pagesTotal = data.length % 10
+    const pagesTotal = data.length % 10;
+
+    const options = assetsItems.map((item) => ({
+        label: item.icon,
+        value: item.name,
+    }));
 
     return (
         <>
@@ -114,6 +119,7 @@ const Accounts = () => {
 
                             <a className="cursor-pointer" onClick={handleAddAccount}>
                                 <Button variant="primary">ADD ACCOUNT</Button>
+                            </a>
                             </a>
                         </div>
 
@@ -136,7 +142,7 @@ const Accounts = () => {
                 </MainContent>
             </Layout>
         </>
-    )
-}
+    );
+};
 
 export default Accounts;
