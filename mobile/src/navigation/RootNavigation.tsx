@@ -1,17 +1,15 @@
 import React from "react";
 import { NavigationContainer } from "@react-navigation/native";
 import { createNativeStackNavigator } from "@react-navigation/native-stack";
-import local from "@app/utils/locales";
-import { useColors } from "@app/context/ColorContex";
-import Splash from "@app/screens/Splash/Splash";
-import WalletSetup from "@app/screens/Setup/WalletSetup";
-import Dashboard from "@app/screens/Dashboard";
-import Login from "@app/screens/Login";
-import Backup from "@app/screens/Backup";
-import Confirm from "@app/screens/Confirm";
-import Restore from "@app/screens/Setup/Restore";
-import Create from "@app/screens/Setup/Create";
-import Main from "@app/screens/Main";
+import Dashboard from "../screens/Dashboard";
+import Login from "../screens/Login";
+import Create from "../screens/Setup/Create";
+import Backup from "../screens/Backup";
+import Confirm from "../screens/Confirm";
+import Restore from "../screens/Setup/Restore";
+import Splash from "../screens/Splash/Splash";
+import WalletSetup from "../screens/Setup/WalletSetup";
+import { useColors } from "../context/ColorContex";
 
 type RootStackParamList = {
   Dashboard: undefined;
@@ -24,7 +22,6 @@ type RootStackParamList = {
   CliSocket: undefined;
   Splash: undefined;
   WalletSetup: undefined;
-  Main: undefined;
 };
 
 const Stack = createNativeStackNavigator<RootStackParamList>();
@@ -51,42 +48,37 @@ const RootNavigation: React.FC = () => {
         <Stack.Screen
           name="WalletSetup"
           component={WalletSetup}
-          options={{ title: local.Title.WalletSetup }}
+          options={{ title: "Setup Wallet" }}
         />
         <Stack.Screen
           name="Dashboard"
           component={Dashboard}
-          options={{ title: local.Title.Dashboard }}
+          options={{ title: "Dashboard" }}
         />
         <Stack.Screen
           name="Login"
           component={Login}
-          options={{ title: local.Title.Login }}
+          options={{ title: "Login" }}
         />
         <Stack.Screen
           name="Create"
           component={Create}
-          options={{ headerShown: false }}
+          options={{ title: "Create New Wallet" }}
         />
         <Stack.Screen
           name="Backup"
           component={Backup}
-          options={{ title: local.Title.Backup }}
+          options={{ title: "Backup Wallet" }}
         />
         <Stack.Screen
           name="Confirm"
           component={Confirm}
-          options={{ title: local.Title.Confirm }}
+          options={{ title: "Confirm Action" }}
         />
         <Stack.Screen
           name="Restore"
           component={Restore}
-          options={{ title: local.Title.Backup }}
-        />
-        <Stack.Screen
-          name="Main"
-          component={Main}
-          options={{ headerShown: false }}
+          options={{ title: "Import Using Seed Phrase" }}
         />
       </Stack.Navigator>
     </NavigationContainer>
