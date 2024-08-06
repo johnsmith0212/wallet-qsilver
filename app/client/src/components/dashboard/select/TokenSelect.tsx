@@ -1,11 +1,10 @@
 import React, { useState } from "react";
 
 import { assetsItems } from "../../../utils/constants";
-import { SelectOption } from "../../commons/Select";
+import { TokenOption } from "../../commons/Select";
+import { useAuth } from "../../../contexts/AuthContext";
 
 interface TokenSelectProps {
-    options: SelectOption[];
-    showTokenDescription?: boolean;
 }
 
 const TokenSelect: React.FC<TokenSelectProps> = ({
@@ -13,33 +12,36 @@ const TokenSelect: React.FC<TokenSelectProps> = ({
     showTokenDescription,
 }) => {
     const [isOpen, setIsOpen] = useState(false);
-    const [selectedOption, setSelectedOption] = useState<SelectOption>(
-        options[0]
-    );
+    // const [selectedOption, setSelectedOption] = useState<TokenOption>(
+    //     options[0]
+    // );
+
+    const { currentToken, setCurrentToken } = useAuth();
 
     const toggleSelect = () => {
         setIsOpen(!isOpen);
     };
 
-    const handleOptionClick = (option: SelectOption) => {
-        setSelectedOption(option);
+    const handleOptionClick = (option: TokenOption) => {
+        setCurrentToken(option);
         setIsOpen(false);
     };
+
     const selectedToken = assetsItems.find((item) => {
-        return selectedOption.value === item.name;
+        return currentToken.value === item.name;
     });
 
     const style = showTokenDescription
         ? {
-              container: "px-4 py-3 rounded-xl",
-              img: "w-6 h-6",
-              chevronIcon: "assets/images/ui/chevron-down-light.svg",
-          }
+            container: "px-4 py-3 rounded-xl",
+            img: "w-6 h-6",
+            chevronIcon: "assets/images/ui/chevron-down-light.svg",
+        }
         : {
-              container: "px-3 py-2 rounded-3xl",
-              img: "w-4 h-4",
-              chevronIcon: "assets/images/ui/chevron-down.svg",
-          };
+            container: "px-3 py-2 rounded-3xl",
+            img: "w-4 h-4",
+            chevronIcon: "assets/images/ui/chevron-down.svg",
+        };
 
     return (
         <div className="relative">
@@ -49,20 +51,20 @@ const TokenSelect: React.FC<TokenSelectProps> = ({
                     onClick={toggleSelect}
                 >
                     <img
-                        src={selectedOption.label}
+                        src={currentToken.label}
                         alt="Selected Option"
                         className={`${style.img} mr-2`}
                     />
 
                     <div className="flex flex-wrap gap-[2px] items-center">
                         <span className="w-full font-Inter font-medium text-xs mr-2">
-                            {selectedOption.value}
+                            {currentToken.value}
                         </span>
-                        {showTokenDescription && (
+
                             <span className="font-Inter font-medium text-[10px] text-inactive">
                                 OPTIONS CONTRACTS
                             </span>
-                        )}
+                        )} */}
                     </div>
 
                     <img src={style.chevronIcon} alt="chevron-down" />

@@ -8,13 +8,12 @@ import React, {
     SetStateAction,
 } from "react";
 import { useNavigate } from "react-router-dom";
-import { MODES, SERVER_URL, sideBarItems } from "../utils/constants";
+import { MODES, SERVER_URL, assetsItems, sideBarItems } from "../utils/constants";
 import { io, Socket } from "socket.io-client";
 import axios from "axios";
 import { AccountInfoInterface, MarketcapInterface, ModeProps, RichListInterface } from "../utils/interfaces";
 import { AccountInfoInterface, MarketcapInterface, ModeProps, RichListInterface } from "../utils/interfaces";
 import { toast } from "react-toastify";
-import { Loading } from "../components/commons";
 import { Loading } from "../components/commons";
 
 interface AuthContextType {
@@ -31,15 +30,15 @@ interface AuthContextType {
     richlist: RichListInterface;
     currentAddress: string;
     tokenBalances: { [name: string]: Balances };
-    seeds: string | string[];
-    accountInfo: AccountInfoInterface | undefined;
-    marketcap: MarketcapInterface | undefined;
-    tokens: string[];
-    tick: string;
-    balances: Balances;
-    richlist: RichListInterface;
-    currentAddress: string;
-    tokenBalances: { [name: string]: Balances };
+
+    totalBalance: string;
+    recoverStatus: boolean;
+    mode: ModeProps;
+    tokenOptions: TokenOption[];
+    currentToken: TokenOption;
+    setCurrentToken: Dispatch<SetStateAction<TokenOption>>;
+    setRecoverStatus: Dispatch<SetStateAction<boolean>>;
+
     setSeedType: Dispatch<SetStateAction<"55chars" | "24words">>;
     setMode: Dispatch<SetStateAction<ModeProps>>;
     setCurrentAddress: Dispatch<SetStateAction<string>>;
@@ -77,10 +76,10 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({
     const [seedType, setSeedType] = useState<"55chars" | "24words">("24words");
     const [seeds, setSeeds] = useState<string | string[]>("");
     const [socket, setSocket] = useState<Socket>();
-    const [isAuthenticated, setIsAuthenticated] = useState<boolean>(false);
+    const [isAuthenticated, setIsAuthenticated] = useState<boolean>(true);
     const [activeTabIdx, setActiveTabIdx] = useState(0);
     const [accountInfo, setAccountInfo] = useState<AccountInfoInterface>();
-    const [accountInfo, setAccountInfo] = useState<AccountInfoInterface>();
+
 
     const [tick, setTick] = useState("");
     const [balances, setBalances] = useState<Balances>({});
@@ -90,6 +89,13 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({
     const [tokens, setTokens] = useState<string[]>([]);
     const [richlist, setRichlist] = useState<RichListInterface>({});
     const [currentAddress, setCurrentAddress] = useState<string>('');
+
+    const tokenOptions: TokenOption[] = assetsItems.map((item) => ({
+        label: item.icon,
+        value: item.name,
+    }));
+
+    const [currentToken, setCurrentToken] = useState<TokenOption>(tokenOptions[0]);
 
     const [password, setPassword] = useState<string>("");
 
@@ -308,7 +314,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({
     }, [accountInfo])
 
     useEffect(() => {
-        fetchInfo()
+
     }, [])
 
     return (
@@ -327,6 +333,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({
                 balances,
                 tokenBalances,
                 currentAddress,
+
                 handleAddAccount,
                 setMode,
                 seeds,
