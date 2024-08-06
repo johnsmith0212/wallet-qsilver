@@ -8,7 +8,6 @@ import MainContent from "../../components/layout/MainContent";
 import AccountSummary from "./AccountSummary";
 import AccountGrid from "./AccountGrid";
 import { useAuth } from "../../contexts/AuthContext";
-import { useEffect, useState } from "react";
 
 type DataType = {
     address: string;
@@ -19,118 +18,35 @@ const Accounts = () => {
 
     const { accountInfo, balances, handleAddAccount } = useAuth();
     const [data, setData] = useState<DataType[]>([]);
-    accountInfo?.addresses.map((item) => {
-        return {
-            address: item,
-            balance: balances[item]
-        }
-    })
+
 
     useEffect(() => {
-        accountInfo?.addresses.map((item) => {
-            if (item != "") {
-                const prevData = [...data];
-                const idx = prevData.findIndex((temp) => temp.address == item);
-                let balance = 0
-                if (balances[item]) {
-                    balance = balances[item]
-                }
-                if (idx == -1) {
-                    prevData.push({
-                        address: item,
-                        balance: balance
-                    })
-                } else {
-                    prevData[idx] = {
-                        address: item,
-                        balance: balance
+        accountInfo?.addresses.forEach((item) => {
+            if (item !== "") {
+                setData((currentData) => {
+                    const idx = currentData.findIndex((temp) => temp.address === item);
+                    const balance = balances[item] || 0;
+
+                    if (idx === -1) {
+                        // If the address doesn't exist, add it
+                        return [...currentData, { address: item, balance }];
+                    } else {
+                        // If the address exists, update its balance
+                        return currentData.map((dataItem, index) =>
+                            index === idx ? { ...dataItem, balance } : dataItem
+                        );
                     }
-                }
-                setData(prevData);
+                });
             }
-        })
-    }, [accountInfo, balances])
+        });
+    }, [accountInfo, balances]);
+    
+    const pagesTotal = Math.round(data.length / 10);
 
-    // const data = [
-    //     {
-    //         address: 'NTMGHIDJKGHLDJGHIEVLJDFDJHFKSJDLKFJLKDSJFKJLKS',
-    //         balance: 250
-    //     },
-    //     {
-    //         address: 'NTMGHIDJKGHLDJGHIEVLJDFDJHFKSJDLKFJLKDSJFKJLKS',
-    //         balance: 250
-    //     },
-    //     {
-    //         address: 'NTMGHIDJKGHLDJGHIEVLJDFDJHFKSJDLKFJLKDSJFKJLKS',
-    //         balance: 250
-    //     },
-    //     {
-    //         address: 'NTMGHIDJKGHLDJGHIEVLJDFDJHFKSJDLKFJLKDSJFKJLKS',
-    //         balance: 250
-    //     },
-    //     {
-    //         address: 'NTMGHIDJKGHLDJGHIEVLJDFDJHFKSJDLKFJLKDSJFKJLKS',
-    //         balance: 250
-    //     },
-    //     {
-    //         address: 'NTMGHIDJKGHLDJGHIEVLJDFDJHFKSJDLKFJLKDSJFKJLKS',
-    //         balance: 250
-    //     },
-    //     {
-    //         address: 'NTMGHIDJKGHLDJGHIEVLJDFDJHFKSJDLKFJLKDSJFKJLKS',
-    //         balance: 250
-    //     },
-    //     {
-    //         address: 'NTMGHIDJKGHLDJGHIEVLJDFDJHFKSJDLKFJLKDSJFKJLKS',
-    //         balance: 250
-    //     },
-    //     {
-    //         address: 'NTMGHIDJKGHLDJGHIEVLJDFDJHFKSJDLKFJLKDSJFKJLKS',
-    //         balance: 250
-    //     },
-    //     {
-    //         address: 'NTMGHIDJKGHLDJGHIEVLJDFDJHFKSJDLKFJLKDSJFKJLKS',
-    //         balance: 250
-    //     },
-    //     {
-    //         address: 'NTMGHIDJKGHLDJGHIEVLJDFDJHFKSJDLKFJLKDSJFKJLKS',
-    //         balance: 250
-    //     },
-    //     {
-    //         address: 'NTMGHIDJKGHLDJGHIEVLJDFDJHFKSJDLKFJLKDSJFKJLKS',
-    //         balance: 250
-    //     },
-    // ]
-
-    const pagesTotal = data.length % 10
-
-    return (
-        <>
-            <Layout>
-                <MainContent>
-                    <div className="space-y-8">
-                        <div className="flex justify-between items-center w-full">
-                            <Title text="ACCOUNTS" iconUrl="/assets/images/sidebar/accounts.svg" />
-
-                            <a className="cursor-pointer" onClick={handleAddAccount}>
-                                <Button variant="primary">ADD ACCOUNT</Button>
-                            </a>
-                        </div>
-
-                        <AccountSummary />
-                    </div>
-
-                    <InnerContainer gapVariant="forms" paddingVariant="lists">
-                        <div>
-                            <AccountGrid data={data} currentPage={1} />
-
-                            <Pagination count={pagesTotal} shape="rounded" color="primary" className="w-fit mx-auto mt-7" renderItem={(item) => (
-                                <PaginationItem
-                                    style={{ color: "#fff" }}
-                                    {...item}
-                                />
-                            )}
-                            />
+    const options = assetsItems.map((item) => ({
+        label: item.icon,
+        value: item.name,
+    }));
                         </div>
                     </InnerContainer>
                 </MainContent>

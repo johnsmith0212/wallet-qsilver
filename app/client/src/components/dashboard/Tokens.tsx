@@ -8,10 +8,7 @@ const Tokens: React.FC = () => {
     const [token, setToken] = useState<AssetItemProps | null>(null)
 
     const handleSend = (token: AssetItemProps) => {
-        console.log('Send token', token.name)
 
-        setToken(token)
-    }
     return (
         <>
             {token?.name && <TokenModal token={token} onClose={setToken} />}

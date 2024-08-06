@@ -1,7 +1,6 @@
 import React from "react";
 import { useNavigation } from "@react-navigation/native";
-import { TouchableOpacity } from "react-native";
-import { Image, VStack, Text } from "native-base";
+import { Image, VStack, Text, Box, Flex, Pressable } from "native-base";
 import { useColors } from "../../context/ColorContex";
 import Button from "../../components/UI/Button";
 import ButtonBox from "../../components/UI/ButtonBox";
@@ -52,6 +51,7 @@ const WalletSetup: React.FC<IProps> = () => {
           type="primary"
           onPress={() => navigation.navigate("Create")}
         ></Button>
+
       </ButtonBox>
     </VStack>
   );

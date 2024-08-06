@@ -32,8 +32,6 @@ const SignUpChars = () => {
                             <Button variant="primary" size="wide"> Back</Button>
                         </Link>
 
-                        <Link to={'/'} className="inline-block w-full lg:w-fit">
-                            <Button variant="primary" size="wide">Next</Button>
                         </Link>
                     </div>
                 </div>

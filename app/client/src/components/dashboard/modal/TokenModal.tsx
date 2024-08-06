@@ -1,3 +1,4 @@
+
 import React from 'react';
 
 import Token from './Token';
@@ -8,6 +9,7 @@ type TokenModalProps = {
     onClose: (token: AssetItemProps | null) => void
     token: AssetItemProps | null
 }
+
 
 const TokenModal: React.FC<TokenModalProps> = ({onClose, token}) => {
     console.log(token)
@@ -23,12 +25,51 @@ const TokenModal: React.FC<TokenModalProps> = ({onClose, token}) => {
                     <img src="/assets/images/ui/button.svg" alt="Close" />
                 </button>
 
-                <div className='w-full px-14 py-5 space-y-6'>
-                    <Token name={token?.name || ''} icon={token?.icon || ''} />
+                <div className="w-full px-14 py-5 space-y-6">
+                    {sendingStatus == 'open' &&
+                        <Token
+                            selectedToken={selectedToken}
+                            setSelectedToken={setSelectedToken}
+                        />
+                    }
 
-                    <TokenFormsModal tokenName={token?.name || ""} />
+                    <TokenFormsModal
+                        tokenName={token?.name || ""}
+                        amount={amount}
+                        setAmount={setAmount}
+                        addressToSend={toAddress}
+                        setAddressToSend={setToAddress}
+                        transactionId={transactionId}
+                        sendingStatus={sendingStatus}
+                        expectedTick={expectedTick}
+                    />
 
-                    <button className='w-full py-4 bg-dark-gray-400 font-Inter font-light rounded-xl cursor-pointer' onClick={() => onClose(null)}>Send</button>
+                    {sendingStatus == 'init' &&
+                        <button
+                            className="w-full py-4 bg-dark-gray-400 font-Inter font-light rounded-xl cursor-pointer"
+                            onClick={() => handleConfirm()}
+                        >
+                            Next
+                        </button>
+                    }
+
+                    {sendingStatus == 'confirm' &&
+                        <button
+                            className="w-full py-4 bg-dark-gray-400 font-Inter font-light rounded-xl cursor-pointer"
+                            onClick={() => transfer()}
+                        >
+                            Send
+                        </button>
+                    }
+
+                    {sendingStatus == 'success' || sendingStatus == 'rejected' &&
+                        <button
+                            className="w-full py-4 bg-dark-gray-400 font-Inter font-light rounded-xl cursor-pointer"
+                            onClick={() => handleCloseModal()}
+                        >
+                            Close
+                        </button>
+
                 </div>
             </div>
         </div>

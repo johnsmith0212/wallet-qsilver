@@ -4,7 +4,7 @@ import { useNavigation } from "@react-navigation/native";
 import { Image, VStack, Text, Box, HStack, Center } from "native-base";
 import { useColors } from "../../../context/ColorContex";
 import ButtonBox from "../../../components/UI/ButtonBox";
-import Button from "../../../components/UI/Button";
+import PageButton from "../../../components/UI/PageButton";
 import ReminderBar from "./Components/ReminderBar";
 import { getPasswordStrengthProps } from "../../../utils/utils";
 
@@ -16,6 +16,7 @@ const Reminder: React.FC<IProps> = () => {
   const [step, setStep] = useState<1 | 2>(1);
   const handleNext = () => {
     if (step == 1) setStep(2);
+    else navigation.navigate("Confirm");
   };
 
   return (
@@ -70,7 +71,9 @@ const Reminder: React.FC<IProps> = () => {
               Secure your wallet's seeds phrase
             </Text>
             <VStack color={textColor} textAlign={"center"} space={"2"}>
-              <Text fontWeight={"bold"} ml={-3}>Manual</Text>
+              <Text fontWeight={"bold"} ml={-3}>
+                Manual
+              </Text>
               <Text>
                 Write down your seed phrase on a piece of paper and store in a
                 safe place.
@@ -79,14 +82,18 @@ const Reminder: React.FC<IProps> = () => {
               <ReminderBar strength={1} />
 
               <VStack space={"2"}>
-                <Text fontWeight={"bold"} ml={-3}>Risks are: </Text>
+                <Text fontWeight={"bold"} ml={-3}>
+                  Risks are:{" "}
+                </Text>
                 <Text>You lose it</Text>
                 <Text>You forget where you put it</Text>
                 <Text>Someone else finds it</Text>
               </VStack>
               <VStack space={2}>
                 <Text>Other options: Doesn't have to be paper!</Text>
-                <Text fontWeight={"bold"} ml={-3}>Tips: </Text>
+                <Text fontWeight={"bold"} ml={-3}>
+                  Tips:{" "}
+                </Text>
                 <Text>Store in bank vault</Text>
                 <Text>Store in a safe</Text>
                 <Text>Store in multiple secret places</Text>
@@ -105,11 +112,11 @@ const Reminder: React.FC<IProps> = () => {
             Remider Later
           </Text>
         </TouchableOpacity>
-        <Button
+        <PageButton
           title={step == 1 ? "Next" : step == 2 ? "Start" : ""}
           type="primary"
           onPress={handleNext}
-        ></Button>
+        ></PageButton>
       </ButtonBox>
     </VStack>
   );
