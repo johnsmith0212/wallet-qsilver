@@ -1,12 +1,12 @@
 import React, { useState } from "react";
 
-export interface TokenOption {
+export interface SelectOption {
     value: string | boolean;
     label: string;
 }
 
 interface TokenSelectProps {
-    options: TokenOption[];
+    options: SelectOption[];
     placeholder?: string;
     font?: "base" | "sm";
     isBorderStyle?: boolean;
@@ -19,7 +19,7 @@ const Select: React.FC<TokenSelectProps> = ({
     isBorderStyle,
 }) => {
     const [isOpen, setIsOpen] = useState(false);
-    const [selectedOption, setSelectedOption] = useState<TokenOption | null>(
+    const [selectedOption, setSelectedOption] = useState<SelectOption | null>(
         null
     );
 
@@ -27,7 +27,7 @@ const Select: React.FC<TokenSelectProps> = ({
         setIsOpen(!isOpen);
     };
 
-    const handleOptionClick = (option: TokenOption) => {
+    const handleOptionClick = (option: SelectOption) => {
         setSelectedOption(option);
         setIsOpen(false);
     };
