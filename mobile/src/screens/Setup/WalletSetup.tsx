@@ -1,12 +1,9 @@
 import React from "react";
-import { TouchableOpacity } from "react-native";
-import { Image, VStack, Text } from "native-base";
 import { useNavigation } from "@react-navigation/native";
-import { useColors } from "@app/context/ColorContex";
-import ButtonBox from "@app/components/UI/ButtonBox";
-import PageButton from "@app/components/UI/PageButton";
-import local from "@app/utils/locales";
-
+import { Image, VStack, Text, Box, Flex, Pressable } from "native-base";
+import { useColors } from "../../context/ColorContex";
+import Button from "../../components/UI/Button";
+import ButtonBox from "../../components/UI/ButtonBox";
 
 interface IProps {}
 
@@ -31,31 +28,31 @@ const WalletSetup: React.FC<IProps> = () => {
         justifyItems="center"
       >
         <Image
-          source={require("@assets/images/01/04.png")}
+          source={require("../../../assets/images/01/04.png")}
           style={{ width: 214, height: 220 }}
           resizeMode="contain"
           alt="Splash Image"
         />
-        <Text color={textColor} fontSize={40} textAlign={"center"} px={10}>
-          {local.WalletSetup.WalletSetup}
+        <Text color={textColor} fontSize={40}>
+          Wallet Setup
         </Text>
       </VStack>
       <ButtonBox>
-        <PageButton
-          title={local.WalletSetup.button_ImportUsingSeedPhrase}
+        <Button
+          title="Import Using Seed Phrase"
           type="disabled"
           onPress={() => {
             navigation.navigate("Restore");
           }}
-        ></PageButton>
-        <PageButton
-          title={local.WalletSetup.button_CreateNewWallet}
+        ></Button>
+        <Button
+          title="Create New Wallet"
           type="primary"
           onPress={() => navigation.navigate("Create")}
-        ></PageButton>
-        <TouchableOpacity onPress={() => navigation.navigate("Login")}>
-          <Text textAlign={"center"}>{local.WalletSetup.HaveAlreadyYourOwnWallet}</Text>
-        </TouchableOpacity>
+        ></Button>
+        <Pressable onPress={() => navigation.navigate("Login")}>
+          <Text textAlign={"center"}>Have Already Your Own Wallet?</Text>
+        </Pressable>
       </ButtonBox>
     </VStack>
   );
