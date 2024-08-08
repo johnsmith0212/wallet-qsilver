@@ -15,6 +15,11 @@ exports.ccallV1request = async (req, res) => {
     res.send(result);
 }
 
+exports.ccallV1request = async (req, res) => {
+    const result = await wasmManager.ccallV1request(req.body);
+    res.send(result);
+}
+
 exports.checkavail = async (req, res) => {
     const resultFor24words = await wasmManager.ccall(req.body);
     const resultFor55chars = await wasmManager.ccall({ ...req.body, command: req.body.command.replace('checkavail ', 'checkavail Q') });

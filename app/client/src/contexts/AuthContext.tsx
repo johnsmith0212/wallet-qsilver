@@ -9,6 +9,7 @@ import React, {
 } from "react";
 import { useNavigate } from "react-router-dom";
 import { MODES, SERVER_URL, assetsItems, sideBarItems } from "../utils/constants";
+import { MODES, SERVER_URL, assetsItems, sideBarItems } from "../utils/constants";
 import { io, Socket } from "socket.io-client";
 import axios from "axios";
 import {
@@ -248,6 +249,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({
 
         if (resp && resp.status == 200) {
             const data = resp.data;
+            console.log(data, 'aaaaaaaaaaaaaaaaaaaaa')
             setIsAuthenticated(data.isAuthenticated);
             setPassword(data.password);
             setAccountInfo(data.accountInfo);
