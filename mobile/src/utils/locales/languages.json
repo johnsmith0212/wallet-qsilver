@@ -1,0 +1,98 @@
+{
+  "en": {
+    "Title": {
+      "CreatePassword": "Create Password",
+      "Reminder": "Secure Alert",
+      "Confirm": "Confrim Seeds Phrase",
+      "SeedType": "Select Seed Type",
+      "WalletSetup": "Setup Wallet",
+      "Dashboard": "Dashboard",
+      "Login": "Login",
+      "Create": "Create",
+      "Backup": "Backup Wallet"
+    },
+    "Splash": {
+      "GetStarted": "Get Started",
+      "Text1": "Property Diversity",
+      "Text2": "Safe Security",
+      "Text3": "Convenient Transaction"
+    },
+    "WalletSetup": {
+      "button_ImportUsingSeedPhrase": "Import Using Seed Phrase",
+      "HaveAlreadyYourOwnWallet": "Have Already Your Own Wallet?",
+      "WalletSetup": "Wallet Setup",
+      "button_CreateNewWallet": "Create New Wallet"
+    },
+    "Create": {
+      "Create": {},
+      "Confirm": {
+        "WriteDownSeedPhrase": "Write Down Your Seed Phrase",
+        "Caption1": "This is your seed phrase. Write it down on a paper and keep it in a safe place. You'll be asked to re-enter this phrase (in order) on the next step.",
+        "ConfirmSeedPhrase": "Confirm Seed Phrase",
+        "Caption2": "Select each word in the order it was presented to you.",
+        "Caption3": "This is your seed chars. Write it down on a paper and keep it in a safe place. You'll be asked to re-enter this phrase (in order) on the next step.",
+        "EnterSeedChar": "Enter your Seed Chars",
+        "Caption4": "Please enter the seed chars you have saved.",
+        "button_Next": "Next"
+      },
+      "CreatePassword": {
+        "Create": "Create Password",
+        "Caption": "This password will unlock your Metamask wallet only on this service",
+        "AtLeast8Char": "Must be at least 8 characters",
+        "PasswordStrength": "Password Strength",
+        "NotMatch": "Password does not match.",
+        "Understand": "I understand that DeGe cannot recover this password for me.",
+        "LearnMore": "Learn more",
+        "placeholder_NewPassword": "New Password",
+        "placeholder_ConfirmPassword": "Confirm Password",
+        "button_CreatePassword": "Create Password"
+      },
+      "Reminder": {
+        "Secure": "Secure Your Wallet",
+        "Caption1": "Don't risk losing your funds. protect your wallet by saving your Seed phrase in a place you trust. It's the only way to recover your wallet if you get locked out of the app or get a new device.",
+        "Caption2": "Secure your wallet's seeds phrase",
+        "Manual": "Manual",
+        "Caption3": "Write down your seed phrase on a piece of paper and store in a safe place.",
+        "SecurityLevel": "Security level",
+        "Risks": "Risks are",
+        "Risk1": "You lose it",
+        "Risk2": "You forget where you put it",
+        "Risk3": "Someone else finds it",
+        "OtherOption": "Other options: Doesn't have to be paper!",
+        "Tips": "Tips",
+        "Tip1": "Store in bank vault",
+        "Tip2": "Store in a safe",
+        "Tip3": "Store in multiple secret places",
+        "RemiderLater": "Remider Later",
+        "button_Next": "Next",
+        "button_Start": "Start"
+      },
+      "SeedType": {
+        "ChooseSeedType": "Choose Seed Type",
+        "TwoWays": "There are two ways to secure your wallet",
+        "_55chars": "55 Chars",
+        "_24words": "24 Words",
+        "CreatePassword": "Create Password",
+        "toast_SuccessCreate": "Create Wallet Successly!"
+      }
+    },
+    "Restore": {
+      "placeholder_SeedPhrase": "Seed Phrase",
+      "placeholder_NewPassword": "New Password",
+      "placeholder_ConfirmPassword": "Confirm Password",
+      "AtLeast8characters": "Must be at least 8 characters",
+      "NotMatch": "Password does not match.",
+      "ByProceeding": "By proceeding, you agree to these",
+      "TermCondition": "Term and Conditions",
+      "ImportButtonTitle": "Imort"
+    },
+    "Login": {
+      "Login": "Login",
+      "NotExist": "Password does not exist.",
+      "placeholder_Password": "Password",
+      "button_ImportUsingSeedPhrase": "Restore your wallet from your  seed ",
+      "button_CreateNewWallet": "Create",
+      "button_Login": "Login"
+    }
+  }
+}

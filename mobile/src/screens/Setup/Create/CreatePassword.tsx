@@ -1,5 +1,4 @@
-import React, { useEffect, useState } from "react";
-import Toast from "react-native-toast-message";
+import React, { useState } from "react";
 import { useNavigation } from "@react-navigation/native";
 import {
   Box,
@@ -10,66 +9,34 @@ import {
   Text,
   VStack,
 } from "native-base";
-import { useColors } from "../../../context/ColorContex";
-import Input from "../../../components/UI/Input";
-import ButtonBox from "../../../components/UI/ButtonBox";
-import PageButton from "../../../components/UI/PageButton";
-import eventEmitter from "../../../api/eventEmitter";
-import { setSeeds } from "../../../redux/appSlice";
-import { useDispatch } from "react-redux";
-import { create } from "../../../api/api";
-import { checkPasswordStrength, getPasswordStrengthProps } from "../../../utils/utils";
+import { useAuth } from "@app/context/AuthContext";
+import { useColors } from "@app/context/ColorContex";
+import {
+  checkPasswordStrength,
+  getPasswordStrengthProps,
+} from "@app/utils/utils";
+import Input from "@app/components/UI/Input";
+import ButtonBox from "@app/components/UI/ButtonBox";
+import PageButton from "@app/components/UI/PageButton";
+import local from "@app/utils/locales";
 
 const CreatePassword: React.FC = () => {
-  const dispatch = useDispatch();
   const navigation = useNavigation();
   const { bgColor, textColor, gray, main } = useColors();
   const [checkAgreement, setCheckAgreement] = useState(false);
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
-  const [passwordStatus, setPasswordStatus] = useState(true);
-  const [seedType, setSeedType] = useState<"24words" | "55chars">("24words");
-  const [creatingStatus, setCreatingStatus] = useState(false);
   const [lengthError, setLengthError] = useState(false);
   const [passwordStrength, setPasswordStrength] = useState<{
     label: string;
     color: string;
   }>(getPasswordStrengthProps(0));
+  const { setTempPassword } = useAuth();
 
   const handlePassword = (text: string) => {
     setPassword(text);
     setPasswordStrength(getPasswordStrengthProps(checkPasswordStrength(text)));
   };
-
-  const handleCreate = () => {
-    setCreatingStatus(true);
-    let passwordPrefix = "";
-    if (seedType == "55chars") passwordPrefix = "Q";
-    create(`login ${passwordPrefix}${password}`);
-  };
-
-  useEffect(() => {
-    eventEmitter.on("S2C/create", (res) => {
-      if (res.data?.value) {
-        if (res.data.value.result >= 0) {
-          Toast.show({ type: "success", text1: "Create Wallet Successly!" });
-          const seeds = res.data.value.display.split(" ");
-          if (seeds.length == 1) {
-            dispatch(setSeeds(seeds[0]));
-          } else {
-            dispatch(setSeeds(seeds));
-          }
-          navigation.navigate("Reminder");
-          setCreatingStatus(false);
-        } else {
-          Toast.show({ type: "error", text1: res.data.value.display });
-        }
-      } else {
-        setPasswordStatus(true);
-        Toast.show({ type: "error", text1: res.error });
-      }
-    });
-  }, []);
 
   return (
     <VStack
@@ -83,10 +50,10 @@ const CreatePassword: React.FC = () => {
       <ScrollView>
         <VStack space={5} pt={10}>
           <Text fontSize={"2xl"} color={main.jeansBlue} textAlign={"center"}>
-            Create Password
+            {local.Create.CreatePassword.Create}
           </Text>
           <Text textAlign={"center"} px={16}>
-            This password will unlock your Metamask wallet only on this service
+            {local.Create.CreatePassword.Caption}
           </Text>
         </VStack>
         <VStack flex={1} pt={28} justifyItems="center" py={40} space={5}>
@@ -95,14 +62,15 @@ const CreatePassword: React.FC = () => {
               onChangeText={handlePassword}
               w={"full"}
               type="password"
-              placeholder="New Password"
+              placeholder={local.Create.CreatePassword.placeholder_NewPassword}
             ></Input>
             <Box p={3}>
               <Text px={2} color={lengthError ? "red.500" : gray.gray40}>
-                Must be at least 8 characters
+                {local.Create.CreatePassword.AtLeast8Char}
               </Text>
               <Text px={2} color={passwordStrength.color}>
-                Password Strength : {passwordStrength.label}
+                {local.Create.CreatePassword.PasswordStrength} :{" "}
+                {passwordStrength.label}
               </Text>
             </Box>
           </Box>
@@ -111,11 +79,11 @@ const CreatePassword: React.FC = () => {
               onChangeText={(text) => setConfirmPassword(text)}
               w={"full"}
               type="password"
-              placeholder="Confirm Password"
+              placeholder={local.Create.CreatePassword.placeholder_ConfirmPassword}
             ></Input>
             {password !== confirmPassword && (
               <Text px={6} color={"red.400"}>
-                Password does not match.
+                {local.Create.CreatePassword.NotMatch}
               </Text>
             )}
           </Box>
@@ -128,7 +96,7 @@ const CreatePassword: React.FC = () => {
               color={textColor}
             >
               <Text>
-                I understand that DeGe cannot recover this password for me.
+                {local.Create.CreatePassword.Understand}
                 <Link
                   href="#"
                   _text={{
@@ -138,7 +106,7 @@ const CreatePassword: React.FC = () => {
                   display={"inline"}
                   colorScheme={"blue"}
                 >
-                  Learn more
+                  {local.Create.CreatePassword.LearnMore}
                 </Link>
               </Text>
             </Checkbox>
@@ -147,7 +115,7 @@ const CreatePassword: React.FC = () => {
       </ScrollView>
       <ButtonBox>
         <PageButton
-          title="Create Password"
+          title={local.Create.CreatePassword.button_CreatePassword}
           type="primary"
           isDisabled={
             password == "" ||
@@ -157,7 +125,8 @@ const CreatePassword: React.FC = () => {
             checkAgreement == false
           }
           onPress={() => {
-            handleCreate();
+            setTempPassword(password);
+            navigation.navigate("SeedType");
           }}
         ></PageButton>
       </ButtonBox>

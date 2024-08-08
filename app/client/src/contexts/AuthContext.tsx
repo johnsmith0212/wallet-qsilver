@@ -35,7 +35,6 @@ interface AuthContextType {
     richlist: RichListInterface;
     currentAddress: string;
     tokenBalances: { [name: string]: Balances };
-    totalBalance: string;
     recoverStatus: boolean;
     mode: ModeProps;
     tokenOptions: TokenOption[];
@@ -238,7 +237,6 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({
 
         if (resp && resp.status == 200) {
             const data = resp.data;
-            console.log(data, 'aaaaaaaaaaaaaaaaaaaaa')
             setIsAuthenticated(data.isAuthenticated);
             setPassword(data.password);
             setAccountInfo(data.accountInfo);
@@ -356,7 +354,6 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({
                 richlist,
                 tick,
                 balances,
-                totalBalance,
                 mode,
                 tokenBalances,
                 currentAddress,

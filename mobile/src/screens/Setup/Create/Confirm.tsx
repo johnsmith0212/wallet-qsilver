@@ -1,43 +1,39 @@
-import {
-  Box,
-  Button,
-  HStack,
-  Icon,
-  ScrollView,
-  Text,
-  VStack,
-} from "native-base";
+import { Box, Button, HStack, Icon, Text, TextArea, VStack } from "native-base";
 import React, { useMemo, useState } from "react";
 import { useSelector } from "react-redux";
 import { TouchableOpacity } from "react-native";
 import { MaterialIcons } from "@expo/vector-icons";
-import { RootState } from "../../../redux/store";
-import PageButton from "../../../components/UI/PageButton";
-import ButtonBox from "../../../components/UI/ButtonBox";
-import { useColors } from "../../../context/ColorContex";
 import { useNavigation } from "@react-navigation/native";
+import { useColors } from "@app/context/ColorContex";
+import { RootState } from "@app/redux/store";
+import ButtonBox from "@app/components/UI/ButtonBox";
+import PageButton from "@app/components/UI/PageButton";
+import local from "@app/utils/locales";
 
 const Confirm: React.FC = () => {
   const { bgColor, textColor, main, gray } = useColors();
-  const { seeds } = useSelector((state: RootState) => state.app);
+  const { seeds, seedType } = useSelector((state: RootState) => state.app);
   const [blurBackground, setBlurBackground] = useState(true);
   const [currentSeedIndex, setCurrentSeedIndex] = useState(0);
-  const [selectedCorrect, setSelectedCorrect] = useState(false);
+  const [isCorrectSeed, setIsCorrectSeed] = useState(false);
+  const [seedValue, setSeedValue] = useState("");
   const [step, setStep] = useState(1);
-
   const navigation = useNavigation();
-
+  const handleSeedTyping = (txt: string) => {
+    setSeedValue(txt);
+    if (txt == seeds) setIsCorrectSeed(true);
+  };
   const handleSeedSelect = (selectedSeed: string) => {
     if (seeds[currentSeedIndex] === selectedSeed) {
-      setSelectedCorrect(true);
+      setIsCorrectSeed(true);
       if (currentSeedIndex < seeds.length - 1) {
         setTimeout(() => {
-          setSelectedCorrect(false);
+          setIsCorrectSeed(false);
           setCurrentSeedIndex(currentSeedIndex + 1);
         }, 1200);
       }
     } else {
-      setSelectedCorrect(false);
+      setIsCorrectSeed(false);
     }
   };
 
@@ -78,6 +74,20 @@ const Confirm: React.FC = () => {
           </HStack>
         );
       });
+    } else {
+      return (
+        <HStack w="full" space={2} justifyContent="center">
+          <TextArea
+            value={seeds}
+            type="text"
+            autoCompleteType={() => {}}
+            w={"full"}
+            p={3}
+            fontSize={"xl"}
+            totalLines={6}
+          ></TextArea>
+        </HStack>
+      );
     }
   }, [seeds]);
 
@@ -90,16 +100,14 @@ const Confirm: React.FC = () => {
       bgColor={bgColor}
       color={textColor}
     >
-      {step == 1 && (
-        <ScrollView flex={1}>
+      {seedType == "24words" && step == 1 && (
+        <VStack flex={1}>
           <VStack space={5} pt={10}>
             <Text fontSize="2xl" color={main.jeansBlue} textAlign="center">
-              Write Down Your Seed Phrase
+              {local.Create.Confirm.WriteDownSeedPhrase}
             </Text>
             <Text textAlign="center" px={16}>
-              This is your seed phrase. Write it down on a paper and keep it in
-              a safe place. You'll be asked to re-enter this phrase (in order)
-              on the next step.
+              {local.Create.Confirm.Caption1}
             </Text>
           </VStack>
           <Box textAlign="center" p={8}>
@@ -138,16 +146,16 @@ const Confirm: React.FC = () => {
               )}
             </VStack>
           </Box>
-        </ScrollView>
+        </VStack>
       )}
-      {step == 2 && (
+      {seedType == "24words" && step == 2 && (
         <VStack flex={1}>
           <VStack space={5} pt={10}>
             <Text fontSize="2xl" color={main.jeansBlue} textAlign="center">
-              Confirm Seed Phrase
+              {local.Create.Confirm.ConfirmSeedPhrase}
             </Text>
             <Text textAlign="center" px={16}>
-              Select each word in the order it was presented to you.
+              {local.Create.Confirm.Caption2}
             </Text>
           </VStack>
           <VStack textAlign="center" p={8} flex={1}>
@@ -160,7 +168,7 @@ const Confirm: React.FC = () => {
                 textAlign="center"
               >
                 {currentSeedIndex + 1}.{" "}
-                {selectedCorrect && seeds[currentSeedIndex]}
+                {isCorrectSeed && seeds[currentSeedIndex]}
               </Text>
             </VStack>
             <HStack
@@ -188,12 +196,70 @@ const Confirm: React.FC = () => {
           </VStack>
         </VStack>
       )}
+      {seedType == "55chars" && step == 1 && (
+        <VStack flex={1} py={16}>
+          <VStack space={5} pt={10}>
+            <Text fontSize="2xl" color={main.jeansBlue} textAlign="center">
+              {local.Create.Confirm.WriteDownSeedPhrase}
+            </Text>
+            <Text textAlign="justify" px={10}>
+              {local.Create.Confirm.Caption3}
+            </Text>
+          </VStack>
+          <Box textAlign="center" py={20} px={8}>
+            <VStack
+              flexWrap="wrap"
+              w="full"
+              space={3}
+              justifyItems="center"
+              justifyContent="center"
+            >
+              {seedComponents}
+            </VStack>
+          </Box>
+        </VStack>
+      )}
+      {seedType == "55chars" && step == 2 && (
+        <VStack flex={1} py={16}>
+          <VStack space={5} pt={10}>
+            <Text fontSize="2xl" color={main.jeansBlue} textAlign="center">
+              {local.Create.Confirm.EnterSeedChar}
+            </Text>
+            <Text textAlign="justify" px={10}>
+              {local.Create.Confirm.Caption4}
+            </Text>
+          </VStack>
+          <Box textAlign="center" py={20} px={8}>
+            <VStack
+              flexWrap="wrap"
+              w="full"
+              space={3}
+              justifyItems="center"
+              justifyContent="center"
+            >
+              <TextArea
+                value={seedValue}
+                onChangeText={handleSeedTyping}
+                type="text"
+                autoCompleteType={() => {}}
+                w={"full"}
+                p={3}
+                fontSize={"xl"}
+                totalLines={6}
+              ></TextArea>
+            </VStack>
+          </Box>
+        </VStack>
+      )}
       <ButtonBox>
         <PageButton
-          title="Next"
+          title={local.Create.Confirm.button_Next}
           type="primary"
           onPress={handleNext}
-          isDisabled={step == 2 && currentSeedIndex != 23 || selectedCorrect == false}
+          isDisabled={
+            (seedType == "24words" && step == 2 && currentSeedIndex != 23) ||
+            (step == 2 && isCorrectSeed == false)
+          }
         />
       </ButtonBox>
     </VStack>
