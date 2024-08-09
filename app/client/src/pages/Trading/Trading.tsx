@@ -157,6 +157,7 @@ const Trading = () => {
                                     }
                                 </Section>
                             </div>
+                            <TradingAside />
                         </div>
                     </div>
                 </MainContent>
