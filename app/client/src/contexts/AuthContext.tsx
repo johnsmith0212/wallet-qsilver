@@ -15,6 +15,7 @@ import {
     AccountInfoInterface,
     MarketcapInterface,
     ModeProps,
+    OrderInterface,
     RichListInterface,
 } from "../utils/interfaces";
 import { toast } from "react-toastify";
@@ -35,11 +36,11 @@ interface AuthContextType {
     richlist: RichListInterface;
     currentAddress: string;
     tokenBalances: { [name: string]: Balances };
+    totalBalance: string;
     recoverStatus: boolean;
     mode: ModeProps;
     tokenOptions: TokenOption[];
     currentToken: TokenOption;
-    setCurrentToken: Dispatch<SetStateAction<TokenOption>>;
     setRecoverStatus: Dispatch<SetStateAction<boolean>>;
     setSeedType: Dispatch<SetStateAction<"55chars" | "24words">>;
     setMode: Dispatch<SetStateAction<ModeProps>>;
@@ -50,6 +51,7 @@ interface AuthContextType {
     create: () => void;
     restoreAccount: () => void;
     handleAddAccount: () => void;
+    handleBuyCell: (flag: 'buy' | 'sell' | 'cancelbuy' | 'cancelsell', amount: string, price: string) => Promise<void>;
     toAccountOption: (password: string, confirmPassword: string) => void;
     handleClickSideBar: (idx: number) => void;
 }
@@ -95,8 +97,6 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({
         label: item.icon,
         value: item.name,
     }));
-
-    const [currentToken, setCurrentToken] = useState<TokenOption>(tokenOptions[0]);
 
     const [password, setPassword] = useState<string>("");
 
@@ -258,6 +258,22 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({
         }
     };
 
+    const fetchTradingInfoPage = async (): Promise<any> => {
+        setTradingPageLoading(true);
+        // let orders;
+        // try {
+        //     const resp = await axios.post(`${SERVER_URL}/api/trading-page-info`, {
+        //         token: currentToken.value
+        //     });
+        //     orders = resp.data;
+        // } catch (error) {
+        //     orders = [];
+        // }
+        setOrders(mockOrders)
+        setTradingPageLoading(false);
+        return mockOrders;
+    }
+
     useEffect(() => {
         const newSocket = io(wsUrl);
         setSocket(newSocket);
@@ -354,6 +370,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({
                 richlist,
                 tick,
                 balances,
+                totalBalance,
                 mode,
                 tokenBalances,
                 currentAddress,
@@ -369,6 +386,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({
                 handleClickSideBar,
                 login,
                 logout,
+                handleBuyCell,
                 toAccountOption,
                 create,
                 restoreAccount,
