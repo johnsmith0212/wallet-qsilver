@@ -9,7 +9,7 @@ import React, {
 } from "react";
 import { useNavigate } from "react-router-dom";
 import { MODES, SERVER_URL, assetsItems, sideBarItems } from "../utils/constants";
-import { MODES, SERVER_URL, assetsItems, sideBarItems } from "../utils/constants";
+
 import { io, Socket } from "socket.io-client";
 import axios from "axios";
 import {
@@ -286,24 +286,6 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({
         setTradingPageLoading(false);
         return mockOrders;
     }
-
-    const handleBuyCell = async (flag: 'buy' | 'sell' | 'cancelbuy' | 'cancelsell', amount: string, price: string): Promise<any> => {
-        try {
-            const resp = await axios.post(`${SERVER_URL}/api/buy-cell`, {
-                flag,
-                password,
-                index: accountInfo?.addresses.indexOf(currentAddress),
-                tick: parseInt(tick) + 10,
-                currentToken: currentToken.value,
-                amount,
-                price,
-            })
-            console.log(resp.data);
-        } catch (error) {
-
-        }
-    }
-
     useEffect(() => {
         const newSocket = io(wsUrl);
         setSocket(newSocket);
