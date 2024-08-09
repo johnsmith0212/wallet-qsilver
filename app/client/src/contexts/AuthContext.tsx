@@ -9,6 +9,7 @@ import React, {
 } from "react";
 import { useNavigate } from "react-router-dom";
 import { MODES, SERVER_URL, assetsItems, sideBarItems } from "../utils/constants";
+
 import { io, Socket } from "socket.io-client";
 import axios from "axios";
 import {
@@ -56,6 +57,7 @@ interface AuthContextType {
     create: () => void;
     restoreAccount: () => void;
     handleAddAccount: () => void;
+    handleBuyCell: (flag: 'buy' | 'sell' | 'cancelbuy' | 'cancelsell', amount: string, price: string) => Promise<void>;
     toAccountOption: (password: string, confirmPassword: string) => void;
     handleClickSideBar: (idx: number) => void;
 }
@@ -284,7 +286,6 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({
         setTradingPageLoading(false);
         return mockOrders;
     }
-
     useEffect(() => {
         const newSocket = io(wsUrl);
         setSocket(newSocket);
@@ -400,6 +401,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({
                 handleClickSideBar,
                 login,
                 logout,
+                handleBuyCell,
                 toAccountOption,
                 create,
                 restoreAccount,
