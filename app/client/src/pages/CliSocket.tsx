@@ -42,7 +42,7 @@ const CliSocket: React.FC = () => {
 
     const handleWasmSend = () => {
         axios.post(
-            `${SERVER_URL}/api/ccall-v1request`,
+            `${SERVER_URL}/api/ccall`,
             {
                 command: wasmCommand,
                 flag: 'cli',
