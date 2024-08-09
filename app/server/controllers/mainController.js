@@ -346,4 +346,4 @@ exports.fetchTradingPageInfo = async (req, res) => {
         res.status(400).send('failed');
         return;
     }
-}
+

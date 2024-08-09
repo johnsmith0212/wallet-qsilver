@@ -249,7 +249,6 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({
 
         if (resp && resp.status == 200) {
             const data = resp.data;
-            console.log(data, 'aaaaaaaaaaaaaaaaaaaaa')
             setIsAuthenticated(data.isAuthenticated);
             setPassword(data.password);
             setAccountInfo(data.accountInfo);
@@ -286,6 +285,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({
         setTradingPageLoading(false);
         return mockOrders;
     }
+
     useEffect(() => {
         const newSocket = io(wsUrl);
         setSocket(newSocket);
